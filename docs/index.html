@@ -1,0 +1,1602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>vapor-hw — Laravel on Huawei Cloud</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="overlay" id="overlay"></div>
+
+  <div class="shell">
+
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-icon">&#9889;</div>
+        <div>
+          <div class="logo-name">vapor-hw</div>
+          <div class="logo-ver">v0.1.0 &middot; Huawei Cloud</div>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-group">
+          <span class="nav-label">Getting Started</span>
+          <a class="nav-item active" href="#introduction">Introduction</a>
+          <a class="nav-item" href="#prerequisites">Prerequisites</a>
+          <a class="nav-item" href="#installation">Installation</a>
+          <a class="nav-item" href="#quickstart">Quick Start</a>
+        </div>
+        <div class="nav-group">
+          <span class="nav-label">Configuration</span>
+          <a class="nav-item" href="#vapor-yaml">vapor.yaml</a>
+          <a class="nav-item" href="#environments">Environments</a>
+          <a class="nav-item" href="#vaporignore">.vaporignore</a>
+        </div>
+        <div class="nav-group">
+          <span class="nav-label">Infrastructure</span>
+          <a class="nav-item" href="#network">Network (VPC)</a>
+          <a class="nav-item" href="#apig">API Gateway</a>
+          <a class="nav-item" href="#storage">Storage (OBS)</a>
+        </div>
+        <div class="nav-group">
+          <span class="nav-label">Services</span>
+          <a class="nav-item" href="#database">Database (RDS)</a>
+          <a class="nav-item" href="#cache">Cache (DCS Redis)</a>
+          <a class="nav-item" href="#queue">Queue (DMS RabbitMQ)</a>
+          <a class="nav-item" href="#kafka">Queue (DMS Kafka)</a>
+          <a class="nav-item" href="#cdn">CDN &amp; Assets</a>
+        </div>
+        <div class="nav-group">
+          <span class="nav-label">Deployment</span>
+          <a class="nav-item" href="#deploy">Deploying</a>
+          <a class="nav-item" href="#hooks">Build &amp; Deploy Hooks</a>
+          <a class="nav-item" href="#rollback">Rollbacks</a>
+          <a class="nav-item" href="#domain">Custom Domain</a>
+          <a class="nav-item" href="#secrets">Secrets</a>
+        </div>
+        <div class="nav-group">
+          <span class="nav-label">Operations</span>
+          <a class="nav-item" href="#artisan">Artisan Commands</a>
+          <a class="nav-item" href="#logs">Logs</a>
+          <a class="nav-item" href="#env-vars">Env Variables</a>
+          <a class="nav-item" href="#database-ops">Database Ops</a>
+          <a class="nav-item" href="#doctor">Doctor</a>
+          <a class="nav-item" href="#destroy">Destroy</a>
+          <a class="nav-item" href="#docs-site">Docs Site</a>
+        </div>
+        <div class="nav-group">
+          <span class="nav-label">Multi-Env</span>
+          <a class="nav-item" href="#multi-env">Staging + Production</a>
+          <a class="nav-item" href="#isolation">Isolation Strategy</a>
+        </div>
+        <div class="nav-group">
+          <span class="nav-label">Reference</span>
+          <a class="nav-item" href="#injected-vars">Injected Env Vars</a>
+          <a class="nav-item" href="#flavors">Flavor Reference</a>
+          <a class="nav-item" href="#cli">CLI Commands</a>
+        </div>
+      </nav>
+    </aside>
+
+    <main class="main">
+
+      <div class="topbar">
+        <div class="topbar-left">
+          <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+            <span></span><span></span><span></span>
+          </button>
+          <div class="breadcrumb">
+            <span class="bc-root">vapor-hw</span>
+            <span class="bc-sep">&rsaquo;</span>
+            <span class="bc-page">Documentation</span>
+          </div>
+        </div>
+        <div class="topbar-badge">Huawei Cloud &middot; ap-southeast-3</div>
+      </div>
+
+      <div class="content">
+
+        <!-- ═══════════════════════════════════════ INTRODUCTION -->
+        <section id="introduction" class="section hero-section">
+          <div class="eyebrow">Documentation</div>
+          <h1 class="hero-title">Laravel on <em>Huawei Cloud</em> &mdash; serverless, effortless.</h1>
+          <p class="hero-desc">vapor-hw adalah CLI tool untuk men-deploy aplikasi Laravel ke Huawei Cloud FunctionGraph. Mirip dengan Laravel Vapor, dioptimalkan untuk ekosistem Huawei Cloud dengan dukungan penuh RDS, DCS Redis, DMS RabbitMQ, CDN, dan APIG.</p>
+          <div class="badge-row">
+            <span class="badge badge-orange">FunctionGraph</span>
+            <span class="badge badge-blue">APIG</span>
+            <span class="badge badge-green">RDS MySQL/PostgreSQL</span>
+            <span class="badge badge-purple">DCS Redis</span>
+            <span class="badge badge-orange">DMS RabbitMQ / Kafka</span>
+            <span class="badge badge-blue">OBS Storage</span>
+            <span class="badge badge-green">CDN</span>
+            <span class="badge badge-purple">CSMS Secrets</span>
+          </div>
+
+          <h3>Bagaimana cara kerjanya?</h3>
+          <p>vapor-hw mengelola seluruh lifecycle deployment Laravel di Huawei Cloud &mdash; mulai dari provisioning infrastruktur hingga deploy dan operasional harian. Kamu hanya perlu satu file konfigurasi (<code>vapor.yaml</code>) dan satu command.</p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Laravel Vapor</th><th>vapor-hw (Huawei Cloud)</th></tr></thead>
+              <tbody>
+                <tr><td>AWS Lambda</td><td>FunctionGraph</td></tr>
+                <tr><td>API Gateway (AWS)</td><td>APIG (Huawei)</td></tr>
+                <tr><td>RDS (AWS)</td><td>RDS MySQL / PostgreSQL</td></tr>
+                <tr><td>ElastiCache Redis</td><td>DCS Redis</td></tr>
+                <tr><td>SQS / RabbitMQ</td><td>DMS RabbitMQ</td></tr>
+                <tr><td>S3</td><td>OBS (Object Storage)</td></tr>
+                <tr><td>CloudFront CDN</td><td>Huawei CDN</td></tr>
+                <tr><td>AWS Secrets Manager</td><td>CSMS (Cloud Secret Manager)</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════ PREREQUISITES -->
+        <section id="prerequisites" class="section">
+          <h2 class="section-title">Prerequisites</h2>
+          <p class="section-sub">Hal-hal yang harus disiapkan sebelum menggunakan vapor-hw.</p>
+
+          <h3>Local Machine</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Tool</th><th>Versi</th><th>Keterangan</th></tr></thead>
+              <tbody>
+                <tr><td>Go</td><td>&ge; 1.21</td><td>Untuk build CLI dari source</td></tr>
+                <tr><td>PHP</td><td>&ge; 7.3</td><td>Untuk menjalankan build hooks lokal (composer, artisan)</td></tr>
+                <tr><td>Composer</td><td>&ge; 2.0</td><td>Package manager PHP</td></tr>
+                <tr><td>zip</td><td>any</td><td>Untuk membuat artifact ZIP</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>Huawei Cloud Account</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Yang Dibutuhkan</th><th>Cara Mendapatkan</th></tr></thead>
+              <tbody>
+                <tr><td>Access Key (AK) &amp; Secret Key (SK)</td><td>Console &rarr; IAM &rarr; My Credentials &rarr; Access Keys</td></tr>
+                <tr><td>Project ID</td><td>Console &rarr; IAM &rarr; My Credentials &rarr; API Credentials</td></tr>
+                <tr><td>Domain ID (Account ID)</td><td>Console &rarr; IAM &rarr; My Credentials &rarr; API Credentials</td></tr>
+                <tr><td>IAM Agency untuk FunctionGraph</td><td>Console &rarr; IAM &rarr; Agencies &rarr; Create (lihat di bawah)</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>Membuat IAM Agency</h3>
+          <p>FunctionGraph butuh agency agar bisa mengakses service Huawei Cloud lainnya (OBS, RDS, dll). Buat <strong>satu kali</strong> di console.</p>
+          <div class="flow">
+            <div class="flow-step"><div class="flow-num">1</div><div class="flow-body"><div class="flow-title">Buka IAM &rarr; Agencies &rarr; Create Agency</div><div class="flow-desc">Agency type: <strong>Cloud service</strong>, service: <strong>FunctionGraph</strong></div></div></div>
+            <div class="flow-step"><div class="flow-num">2</div><div class="flow-body"><div class="flow-title">Tambahkan permissions berikut</div><div class="flow-desc">OBS OperateAccess &bull; RDS FullAccess &bull; DCS FullAccess &bull; DMS FullAccess &bull; CSMS FullAccess &bull; VPC FullAccess &bull; APIG FullAccess</div></div></div>
+            <div class="flow-step"><div class="flow-num">3</div><div class="flow-body"><div class="flow-title">Catat nama agency</div><div class="flow-desc">Nama agency ini diisi di field <code>xrole</code> pada <code>vapor.yaml</code></div></div></div>
+          </div>
+          <div class="callout callout-warn">
+            <span class="callout-icon">&#9888;&#65039;</span>
+            <div>Pastikan AK/SK yang dipakai memiliki permission yang cukup untuk create semua service (VPC, RDS, DCS, DMS, APIG, OBS, FunctionGraph, CSMS). Gunakan akun dengan policy <strong>FullAccess</strong> pada semua service tersebut, atau buat custom policy.</div>
+          </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════ INSTALLATION -->
+        <section id="installation" class="section">
+          <h2 class="section-title">Installation</h2>
+          <p class="section-sub">Build vapor-hw dari source dan install ke PATH.</p>
+
+          <h3>Linux / macOS</h3>
+          <div class="codeblock">
+            <div class="cb-header"><span class="cb-lang">bash</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+            <pre><span class="c"># Clone repository</span>
+git clone https://github.com/yourorg/vapor-hwc
+cd vapor-hwc
+
+<span class="c"># Build binary</span>
+go build -o vapor-hw .
+
+<span class="c"># Install ke PATH</span>
+sudo mv vapor-hw /usr/local/bin/vapor-hw
+sudo chmod +x /usr/local/bin/vapor-hw</pre>
+          </div>
+
+          <h3>Windows (PowerShell)</h3>
+          <div class="codeblock">
+            <div class="cb-header"><span class="cb-lang">powershell</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+            <pre>cd vapor-hwc
+go build -o vapor-hw.exe .
+
+<span class="c"># Pindahkan ke folder yang ada di PATH, atau jalankan langsung:</span>
+.\vapor-hw.exe version</pre>
+          </div>
+
+          <h3>Verify instalasi</h3>
+          <div class="codeblock">
+            <div class="cb-header"><span class="cb-lang">bash</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+            <pre><span class="cmd">vapor-hw version</span>
+<span class="c"># vapor-hw v0.1.0 (Huawei Cloud)</span>
+
+<span class="cmd">vapor-hw --help</span></pre>
+          </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════ QUICKSTART -->
+        <section id="quickstart" class="section">
+          <h2 class="section-title">Quick Start</h2>
+          <p class="section-sub">Deploy Laravel pertama kamu ke Huawei Cloud dalam beberapa langkah.</p>
+
+          <div class="flow">
+            <div class="flow-step"><div class="flow-num">01</div><div class="flow-body"><div class="flow-title">Login dengan Huawei Cloud credentials</div><div class="flow-desc">Simpan AK/SK secara aman di credential store lokal.</div></div></div>
+            <div class="flow-step"><div class="flow-num">02</div><div class="flow-body"><div class="flow-title">Inisialisasi project</div><div class="flow-desc">Generate <code>vapor.yaml</code> template di root project Laravel.</div></div></div>
+            <div class="flow-step"><div class="flow-num">03</div><div class="flow-body"><div class="flow-title">Edit vapor.yaml</div><div class="flow-desc">Sesuaikan <code>id</code>, <code>region</code>, <code>xrole</code>, dan konfigurasi environment.</div></div></div>
+            <div class="flow-step"><div class="flow-num">04</div><div class="flow-body"><div class="flow-title">Set secrets</div><div class="flow-desc">Upload secret seperti <code>APP_KEY</code> dan <code>DB_PASSWORD</code> ke CSMS.</div></div></div>
+            <div class="flow-step"><div class="flow-num">05</div><div class="flow-body"><div class="flow-title">Provision infrastructure</div><div class="flow-desc">Buat VPC, APIG, RDS, DCS, DMS, OBS bucket secara otomatis.</div></div></div>
+            <div class="flow-step"><div class="flow-num">06</div><div class="flow-body"><div class="flow-title">Deploy aplikasi</div><div class="flow-desc">Build artifact, upload ke OBS, dan deploy ke FunctionGraph.</div></div></div>
+          </div>
+
+          <div class="codeblock">
+            <div class="cb-header"><span class="cb-lang">bash</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+            <pre><span class="c"># 1. Login</span>
+<span class="cmd">vapor-hw login</span>
+
+<span class="c"># 2. Init di root project Laravel</span>
+<span class="cmd">cd /path/to/laravel-project</span>
+<span class="cmd">vapor-hw init</span>
+
+<span class="c"># 3. Edit vapor.yaml sesuai kebutuhan, lalu set secrets</span>
+<span class="cmd">vapor-hw secret set production APP_KEY "base64:xxxxxx"</span>
+<span class="cmd">vapor-hw secret set production DB_PASSWORD "YourPass!"</span>
+<span class="cmd">vapor-hw secret set production REDIS_PASSWORD "RedisPass!"</span>
+<span class="cmd">vapor-hw secret set production RABBITMQ_PASSWORD "RabbitPass!"</span>
+<span class="cmd">vapor-hw secret set production OBS_KEY "your-ak"</span>
+<span class="cmd">vapor-hw secret set production OBS_SECRET "your-sk"</span>
+
+<span class="c"># 4. Provision semua infrastruktur</span>
+<span class="cmd">vapor-hw infra apply</span>
+
+<span class="c"># 5. Deploy!</span>
+<span class="cmd">vapor-hw deploy run production</span></pre>
+          </div>
+
+          <div class="callout callout-tip">
+            <span class="callout-icon">&#128161;</span>
+            <div>Semua command bersifat <strong>idempoten</strong> &mdash; aman dijalankan berkali-kali. Jika resource sudah ada, vapor-hw akan memakai yang existing tanpa membuat ulang.</div>
+          </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════ VAPOR.YAML -->
+        <section id="vapor-yaml" class="section">
+          <h2 class="section-title">vapor.yaml</h2>
+          <p class="section-sub">File konfigurasi utama yang mendefinisikan seluruh project, infrastruktur, dan environment. Harus berada di <strong>root project Laravel</strong>.</p>
+
+          <div class="codeblock">
+            <div class="cb-header"><span class="cb-lang">yaml</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+            <pre><span class="yk">id</span>: <span class="yv">my-laravel-app</span>      <span class="yc"># [WAJIB] prefix semua resource cloud</span>
+<span class="yk">name</span>: <span class="yv">My Laravel App</span>    <span class="yc"># [WAJIB] nama tampilan</span>
+<span class="yk">runtime</span>: <span class="yv">PHP8.1</span>         <span class="yc"># [WAJIB] PHP7.3|PHP7.4|PHP8.0|PHP8.1|PHP8.2</span>
+<span class="yk">region</span>: <span class="yv">ap-southeast-3</span>  <span class="yc"># [WAJIB] region Huawei Cloud</span>
+<span class="yk">xrole</span>: <span class="yv">my-fg-agency</span>     <span class="yc"># [WAJIB] nama IAM Agency untuk FunctionGraph</span>
+
+<span class="yk">storage</span>:
+  <span class="yk">bucket</span>: <span class="yv">vapor-my-app-storage</span>   <span class="yc"># [WAJIB] nama OBS bucket</span>
+
+<span class="yk">network</span>:
+  <span class="yk">vpc</span>:
+    <span class="yk">name</span>: <span class="yv">my-app-vpc</span>
+    <span class="yk">cidr</span>: <span class="yv">10.0.0.0/16</span>
+  <span class="yk">subnet</span>:
+    <span class="yk">name</span>: <span class="yv">my-app-subnet</span>
+    <span class="yk">cidr</span>: <span class="yv">10.0.1.0/24</span>
+  <span class="yk">security_group</span>:
+    <span class="yk">name</span>: <span class="yv">my-app-sg</span>
+    <span class="yk">allow_http</span>: <span class="yb">true</span>
+    <span class="yk">allow_https</span>: <span class="yb">true</span>
+
+<span class="yk">infra</span>:
+  <span class="yk">apig</span>:
+    <span class="yk">instance</span>:
+      <span class="yk">name</span>: <span class="yv">my-app-apig</span>
+      <span class="yk">edition</span>: <span class="yv">BASIC</span>     <span class="yc"># BASIC|PROFESSIONAL|ENTERPRISE|PLATINUM</span>
+      <span class="yk">public_access</span>: <span class="yb">true</span>
+      <span class="yc"># instance_id: "abc123"  # isi untuk pakai existing APIG</span>
+
+<span class="yk">environments</span>:
+  <span class="yk">production</span>:
+    <span class="yc"># ... lihat section Environments</span></pre>
+          </div>
+
+          <h3>Field utama</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Field</th><th>Wajib</th><th>Keterangan</th></tr></thead>
+              <tbody>
+                <tr><td>id</td><td>&#9989;</td><td>Identifier unik project. Huruf kecil, angka, tanda hubung. Dipakai sebagai prefix semua resource Huawei Cloud.</td></tr>
+                <tr><td>name</td><td>&#9989;</td><td>Nama tampilan project (bebas).</td></tr>
+                <tr><td>runtime</td><td>&#9989;</td><td>PHP runtime: <code>PHP7.3</code> / <code>PHP7.4</code> / <code>PHP8.0</code> / <code>PHP8.1</code> / <code>PHP8.2</code></td></tr>
+                <tr><td>region</td><td>&#9989;</td><td>Huawei Cloud region. Contoh: <code>ap-southeast-3</code> (Singapore)</td></tr>
+                <tr><td>xrole</td><td>&#9989;</td><td>Nama IAM Agency untuk FunctionGraph. Buat sekali di IAM Console.</td></tr>
+                <tr><td>enterprise</td><td>&mdash;</td><td>Enterprise Project ID. Kosongkan jika tidak pakai.</td></tr>
+                <tr><td>storage.bucket</td><td>&#9989;</td><td>Nama OBS bucket. Harus unik secara global.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="callout callout-info">
+            <span class="callout-icon">&#8505;&#65039;</span>
+            <div>Jalankan <code>vapor-hw validate</code> untuk memverifikasi <code>vapor.yaml</code> sebelum deploy. CLI akan mendeteksi field yang hilang atau salah format.</div>
+          </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════ ENVIRONMENTS -->
+        <section id="environments" class="section">
+          <h2 class="section-title">Environments</h2>
+          <p class="section-sub">Setiap environment adalah deployment Laravel yang terpisah dengan resource infra masing-masing. Kamu bisa definisikan sebanyak apapun environment (production, staging, dev, dll).</p>
+
+          <div class="codeblock">
+            <div class="cb-header"><span class="cb-lang">yaml</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+            <pre><span class="yk">environments</span>:
+  <span class="yk">production</span>:
+    <span class="yk">domain</span>: <span class="yv">api.example.com</span>         <span class="yc"># custom domain via APIG</span>
+    <span class="yk">memory</span>: <span class="yn">1024</span>                    <span class="yc"># MB (default: 512, maks: 10240)</span>
+    <span class="yk">timeout</span>: <span class="yn">300</span>                    <span class="yc"># detik (default: 30, maks: 900)</span>
+    <span class="yk">concurrency</span>: <span class="yn">20</span>                 <span class="yc"># max request serentak per instance</span>
+
+    <span class="yk">scaling</span>:
+      <span class="yk">max_instances</span>: <span class="yn">10</span>             <span class="yc"># batas auto-scaling</span>
+      <span class="yk">reserved_instances</span>: <span class="yn">1</span>        <span class="yc"># selalu aktif (cegah cold start)</span>
+
+    <span class="yk">certificate</span>:
+      <span class="yk">name</span>: <span class="yv">production-ssl</span>
+      <span class="yk">cert</span>: <span class="yv">./certs/production.crt</span>   <span class="yc"># path PEM cert lokal</span>
+      <span class="yk">key</span>:  <span class="yv">./certs/production.key</span>
+
+    <span class="yk">database</span>:   <span class="yc"># lihat section Database</span>
+    <span class="yk">cache</span>:      <span class="yc"># lihat section Cache</span>
+    <span class="yk">queue</span>:      <span class="yc"># lihat section Queue</span>
+    <span class="yk">cdn</span>:        <span class="yc"># lihat section CDN</span>
+
+    <span class="yk">env</span>:
+      <span class="yk">APP_ENV</span>: <span class="yv">production</span>
+      <span class="yk">APP_DEBUG</span>: <span class="yv">"false"</span>
+
+    <span class="yk">secrets</span>:
+      - <span class="yv">APP_KEY</span>
+      - <span class="yv">DB_PASSWORD</span>
+
+    <span class="yk">build</span>:
+      <span class="yk">commands</span>:
+        - <span class="yv">composer install --no-dev --optimize-autoloader</span>
+        - <span class="yv">php artisan config:cache</span>
+
+    <span class="yk">deploy</span>:
+      <span class="yk">commands</span>:
+        - <span class="yv">php artisan migrate --force</span>
+        - <span class="yv">php artisan vapor:health-check</span></pre>
+          </div>
+
+          <h3>Parameter environment</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Field</th><th>Default</th><th>Keterangan</th></tr></thead>
+              <tbody>
+                <tr><td>domain</td><td>&mdash;</td><td>Custom domain untuk endpoint Laravel. Jalankan <code>vapor-hw domain [env]</code> setelah deploy pertama untuk bind.</td></tr>
+                <tr><td>memory</td><td>512</td><td>Memory FunctionGraph dalam MB. Rentang: 128&ndash;10240, kelipatan 128.</td></tr>
+                <tr><td>timeout</td><td>30</td><td>Request timeout dalam detik. Maks: 900.</td></tr>
+                <tr><td>concurrency</td><td>10</td><td>Max request serentak per instance.</td></tr>
+                <tr><td>scaling.max_instances</td><td>5</td><td>Batas maksimum scaling FunctionGraph.</td></tr>
+                <tr><td>scaling.reserved_instances</td><td>0</td><td>Instance yang selalu aktif. Set &ge; 1 untuk menghindari cold start.</td></tr>
+                <tr><td>certificate.name</td><td>&mdash;</td><td>Nama sertifikat SSL di APIG.</td></tr>
+                <tr><td>certificate.cert</td><td>&mdash;</td><td>Path ke file PEM certificate di mesin lokal.</td></tr>
+                <tr><td>certificate.key</td><td>&mdash;</td><td>Path ke file PEM private key di mesin lokal.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════ .VAPORIGNORE -->
+        <section id="vaporignore" class="section">
+          <h2 class="section-title">.vaporignore</h2>
+          <p class="section-sub">File opsional untuk mengecualikan direktori/file dari artifact ZIP yang diupload ke FunctionGraph.</p>
+
+          <div class="codeblock">
+            <div class="cb-header"><span class="cb-lang">text (.vaporignore)</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+            <pre>node_modules/
+storage/logs/
+storage/framework/cache/
+storage/framework/sessions/
+storage/framework/views/
+.git/
+.env
+.env.example
+tests/
+phpunit.xml
+README.md</pre>
+          </div>
+
+          <div class="callout callout-tip">
+            <span class="callout-icon">&#128161;</span>
+            <div>File <code>.vaporignore</code> dibuat otomatis saat <code>vapor-hw init</code> dengan isi default yang sudah optimal. Tambahkan path lain yang tidak diperlukan di FunctionGraph untuk memperkecil ukuran artifact dan mempercepat deploy.</div>
+          </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════ NETWORK -->
+        <section id="network" class="section">
+          <h2 class="section-title">Network (VPC)</h2>
+          <p class="section-sub">VPC, Subnet, dan Security Group dibuat otomatis jika belum ada. Jika sudah ada dengan nama yang sama, akan dipakai (idempoten).</p>
+
+          <div class="codeblock">
+            <div class="cb-header"><span class="cb-lang">yaml</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+            <pre><span class="yk">network</span>:
+  <span class="yk">vpc</span>:
+    <span class="yk">name</span>: <span class="yv">my-app-vpc</span>
+    <span class="yk">cidr</span>: <span class="yv">10.0.0.0/16</span>       <span class="yc"># bebas, tidak boleh overlap VPC lain</span>
+  <span class="yk">subnet</span>:
+    <span class="yk">name</span>: <span class="yv">my-app-subnet</span>
+    <span class="yk">cidr</span>: <span class="yv">10.0.1.0/24</span>      <span class="yc"># harus berada dalam CIDR VPC di atas</span>
+  <span class="yk">security_group</span>:
+    <span class="yk">name</span>: <span class="yv">my-app-sg</span>
+    <span class="yk">allow_http</span>: <span class="yb">true</span>         <span class="yc"># buka port 80</span>
+    <span class="yk">allow_https</span>: <span class="yb">true</span>        <span class="yc"># buka port 443</span></pre>
+          </div>
+
+          <h3>Security group rules yang dibuat otomatis</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Port</th><th>Protocol</th><th>Keterangan</th></tr></thead>
+              <tbody>
+                <tr><td>80</td><td>TCP</td><td>HTTP (jika allow_http: true)</td></tr>
+                <tr><td>443</td><td>TCP</td><td>HTTPS (jika allow_https: true)</td></tr>
+                <tr><td>3306</td><td>TCP</td><td>MySQL RDS (antar resource dalam VPC)</td></tr>
+                <tr><td>5432</td><td>TCP</td><td>PostgreSQL RDS (antar resource dalam VPC)</td></tr>
+                <tr><td>6379</td><td>TCP</td><td>DCS Redis (antar resource dalam VPC)</td></tr>
+                <tr><td>5671</td><td>TCP</td><td>DMS RabbitMQ AMQPS/SSL</td></tr>
+                <tr><td>5672</td><td>TCP</td><td>DMS RabbitMQ AMQP plain</td></tr>
+                <tr><td>9092</td><td>TCP</td><td>DMS Kafka PLAINTEXT</td></tr>
+                <tr><td>9093</td><td>TCP</td><td>DMS Kafka SASL+SSL (direkomendasikan)</td></tr>
+                <tr><td>9095</td><td>TCP</td><td>DMS Kafka SASL_PLAINTEXT</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════ APIG -->
+        <section id="apig" class="section">
+          <h2 class="section-title">API Gateway (APIG)</h2>
+          <p class="section-sub">APIG sebagai entry point HTTP/HTTPS untuk FunctionGraph. Setiap environment mendapat APIG group sendiri dengan domain unik.</p>
+
+          <h3>Buat APIG baru</h3>
+          <div class="codeblock">
+            <div class="cb-header"><span class="cb-lang">yaml</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+            <pre><span class="yk">infra</span>:
+  <span class="yk">apig</span>:
+    <span class="yk">instance</span>:
+      <span class="yk">name</span>: <span class="yv">my-app-apig</span>
+      <span class="yk">edition</span>: <span class="yv">BASIC</span>        <span class="yc"># BASIC | PROFESSIONAL | ENTERPRISE | PLATINUM</span>
+      <span class="yk">public_access</span>: <span class="yb">true</span></pre>
+          </div>
+
+          <h3>Pakai APIG yang sudah ada</h3>
+          <div class="codeblock">
+            <div class="cb-header"><span class="cb-lang">yaml</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+            <pre><span class="yk">infra</span>:
+  <span class="yk">apig</span>:
+    <span class="yk">instance</span>:
+      <span class="yk">name</span>: <span class="yv">my-existing-apig</span>
+      <span class="yk">instance_id</span>: <span class="yv">"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"</span>  <span class="yc"># skip create</span></pre>
+          </div>
+
+          <div class="callout callout-info">
+            <span class="callout-icon">&#8505;&#65039;</span>
+            <div>Per environment, APIG membuat <strong>API group</strong> tersendiri dengan <code>/{proxy+}</code> dan <code>/</code> route yang memforward semua request ke FunctionGraph. URL format: <code>https://&#123;env_group_sl_domain&#125;/RELEASE/</code></div>
+          </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════ STORAGE -->
+        <section id="storage" class="section">
+          <h2 class="section-title">Storage (OBS)</h2>
+          <p class="section-sub">OBS bucket digunakan untuk tiga keperluan: artifact deploy, state file infra, dan static asset CDN. Dibuat otomatis jika belum ada.</p>
+
+          <div class="codeblock">
+            <div class="cb-header"><span class="cb-lang">yaml</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+            <pre><span class="yk">storage</span>:
+  <span class="yk">bucket</span>: <span class="yv">vapor-my-app-storage</span>   <span class="yc"># nama unik global</span></pre>
+          </div>
+
+          <h3>Struktur folder di OBS</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Path di OBS</th><th>Isi</th></tr></thead>
+              <tbody>
+                <tr><td><code>{id}/{env}/artifacts/</code></td><td>ZIP artifact deploy per version</td></tr>
+                <tr><td><code>{id}/{env}/state.json</code></td><td>State infra (host, port, instance ID, dll)</td></tr>
+                <tr><td><code>{id}/assets/{hash}/</code></td><td>Static assets dari <code>public/</code> (CDN)</td></tr>
+                <tr><td><code>{id}/{env}/env</code></td><td>Custom env vars yang di-push via <code>env push</code></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>Integrasi Laravel Filesystem</h3>
+          <p>Untuk menggunakan OBS sebagai filesystem Laravel (<code>Storage::disk('obs')</code>), tambahkan package <code>obs/esdk-obs-php</code> dan konfigurasi di <code>config/filesystems.php</code>:</p>
+          <div class="codeblock">
+            <div class="cb-header"><span class="cb-lang">php (config/filesystems.php)</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+            <pre>'obs' => [
+    'driver'   => 'obs',
+    'key'      => env('OBS_KEY'),
+    'secret'   => env('OBS_SECRET'),
+    'bucket'   => env('OBS_BUCKET'),
+    'endpoint' => env('OBS_ENDPOINT'),
+    'region'   => env('OBS_REGION'),
+    'prefix'   => env('OBS_PREFIX', ''),  <span class="c">// penting untuk isolasi staging</span>
+],</pre>
+          </div>
+
+          <div class="callout callout-info">
+            <span class="callout-icon">&#8505;&#65039;</span>
+            <div><code>OBS_KEY</code> dan <code>OBS_SECRET</code> adalah AK/SK Huawei Cloud. Simpan sebagai <strong>secrets</strong>, bukan di <code>env:</code> vapor.yaml.</div>
+          </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════ DATABASE -->
+        <section id="database" class="section">
+          <h2 class="section-title">Database (RDS)</h2>
+          <p class="section-sub">Managed MySQL atau PostgreSQL via Huawei RDS. Database dan user aplikasi dibuat otomatis oleh <code>infra apply</code>.</p>
+
+          <h3>Opsi A — Buat RDS baru (managed)</h3>
+          <div class="codeblock">
+            <div class="cb-header"><span class="cb-lang">yaml</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+            <pre><span class="yk">database</span>:
+  <span class="yk">engine</span>: <span class="yv">mysql</span>              <span class="yc"># mysql | postgresql</span>
+  <span class="yk">version</span>: <span class="yv">"8.0"</span>             <span class="yc"># MySQL: 5.7|8.0 / PostgreSQL: 12|13|14|15</span>
+  <span class="yk">name</span>: <span class="yv">my-app-db-prod</span>       <span class="yc"># nama RDS instance</span>
+  <span class="yk">db_name</span>: <span class="yv">laravel</span>           <span class="yc"># nama database (dibuat otomatis)</span>
+  <span class="yk">username</span>: <span class="yv">laravel</span>          <span class="yc"># user aplikasi (bukan rdsuser)</span>
+  <span class="yk">password</span>: <span class="yv">"ProdDB@Str0ng!"</span>
+
+  <span class="yk">flavor</span>: <span class="yv">rds.mysql.n1.large.4</span>  <span class="yc"># opsional, auto-select jika kosong</span>
+  <span class="yk">volume_size</span>: <span class="yn">100</span>           <span class="yc"># GB (default: 40, min: 40, maks: 4000)</span>
+  <span class="yk">volume_type</span>: <span class="yv">ULTRAHIGH</span>    <span class="yc"># COMMON (SATA) | ULTRAHIGH (SSD) | ESSD (NVMe)</span>
+  <span class="yk">az</span>: <span class="yv">ap-southeast-3a</span>
+  <span class="yc"># port: 3306                # opsional, default MySQL: 3306 / PostgreSQL: 5432</span></pre>
+          </div>
+
+          <h3>Opsi B — Pakai database external/existing</h3>
+          <div class="codeblock">
+            <div class="cb-header"><span class="cb-lang">yaml</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+            <pre><span class="yk">database</span>:
+  <span class="yk">host</span>: <span class="yv">10.10.1.111</span>    <span class="yc"># isi host → skip create RDS</span>
+  <span class="yk">port</span>: <span class="yn">3306</span>
+  <span class="yk">db_name</span>: <span class="yv">laravel</span>
+  <span class="yk">username</span>: <span class="yv">my_app_user</span>
+  <span class="yk">password</span>: <span class="yv">"YourPass!"</span></pre>
+          </div>
+
+          <h3>Apa yang dilakukan infra apply pada Database?</h3>
+          <div class="flow">
+            <div class="flow-step"><div class="flow-num">1</div><div class="flow-body"><div class="flow-title">Cek apakah instance sudah ada</div><div class="flow-desc">Cari berdasarkan <code>name</code>. Jika sudah ada → lanjut ke step 3. Jika belum → create instance baru.</div></div></div>
+            <div class="flow-step"><div class="flow-num">2</div><div class="flow-body"><div class="flow-title">Create RDS instance</div><div class="flow-desc">Tunggu status <code>ACTIVE</code> (5&ndash;10 menit). Auto-select flavor jika tidak diset.</div></div></div>
+            <div class="flow-step"><div class="flow-num">3</div><div class="flow-body"><div class="flow-title">Ensure database & user</div><div class="flow-desc">Buat database <code>db_name</code> jika belum ada. Buat user aplikasi jika belum ada. Grant privileges. <strong>Idempoten</strong> — aman jika sudah ada.</div></div></div>
+            <div class="flow-step"><div class="flow-num">4</div><div class="flow-body"><div class="flow-title">Fix MySQL auth plugin (PHP 7.x)</div><div class="flow-desc">Untuk PHP &lt; 8.1, otomatis set <code>mysql_native_password</code> agar kompatibel dengan ext-pdo_mysql.</div></div></div>
+          </div>
+
+          <h3>Env vars yang di-inject otomatis</h3>
+          <div class="codeblock">
+            <div class="cb-header"><span class="cb-lang">env vars injected</span></div>
+            <pre>DB_CONNECTION=mysql
+DB_HOST=10.10.1.xxx       <span class="c"># dari state.json</span>
+DB_PORT=3306
+DB_DATABASE=laravel
+DB_USERNAME=laravel
+DB_PASSWORD=xxx           <span class="c"># dari secrets CSMS</span></pre>
+          </div>
+
+          <div class="callout callout-warn">
+            <span class="callout-icon">&#9888;&#65039;</span>
+            <div>Jangan simpan <code>DB_PASSWORD</code> di bagian <code>env:</code> vapor.yaml. Gunakan <code>secrets</code> agar nilainya diambil dari CSMS dan tidak tersimpan di OBS state file.</div>
+          </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════ CACHE -->
+        <section id="cache" class="section">
+          <h2 class="section-title">Cache (DCS Redis)</h2>
+          <p class="section-sub">Managed Redis via Huawei Distributed Cache Service. Digunakan sebagai cache, session, dan queue driver Laravel.</p>
+
+          <h3>Opsi A — Buat DCS Redis baru</h3>
+          <div class="codeblock">
+            <div class="cb-header"><span class="cb-lang">yaml</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+            <pre><span class="yk">cache</span>:
+  <span class="yk">engine</span>: <span class="yv">redis</span>
+  <span class="yk">version</span>: <span class="yv">"6.0"</span>            <span class="yc"># 5.0 | 6.0</span>
+  <span class="yk">name</span>: <span class="yv">my-app-cache-prod</span>
+  <span class="yk">password</span>: <span class="yv">"ProdRedis@123!"</span>
+  <span class="yk">capacity</span>: <span class="yn">4</span>               <span class="yc"># GB: 0.125|0.25|0.5|1|2|4|8|16|32|64</span>
+  <span class="yc"># flavor: redis.ha.xu1.large.r2.4  # opsional, auto-select dari capacity</span>
+  <span class="yk">az</span>: <span class="yv">ap-southeast-3a</span>
+  <span class="yk">port</span>: <span class="yn">6379</span></pre>
+          </div>
+
+          <h3>Opsi B — Pakai Redis external/existing</h3>
+          <div class="codeblock">
+            <div class="cb-header"><span class="cb-lang">yaml</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+            <pre><span class="yk">cache</span>:
+  <span class="yk">host</span>: <span class="yv">10.10.1.38</span>          <span class="yc"># isi host → skip create DCS</span>
+  <span class="yk">port</span>: <span class="yn">6379</span>
+  <span class="yk">password</span>: <span class="yv">"YourRedisPass!"</span></pre>
+          </div>
+
+          <h3>Env vars yang di-inject otomatis</h3>
+          <div class="codeblock">
+            <div class="cb-header"><span class="cb-lang">env vars injected</span></div>
+            <pre>REDIS_HOST=10.10.1.38
+REDIS_PORT=6379
+REDIS_PASSWORD=xxx        <span class="c"># dari secrets CSMS</span></pre>
+          </div>
+
+          <div class="callout callout-info">
+            <span class="callout-icon">&#8505;&#65039;</span>
+            <div>Untuk staging yang berbagi Redis instance dengan production, tambahkan <code>REDIS_PREFIX: "staging:"</code> di bagian <code>env:</code> staging. Bootstrap akan otomatis menginjeksinya ke semua Redis connection config Laravel.</div>
+          </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════ QUEUE -->
+        <section id="queue" class="section">
+          <h2 class="section-title">Queue (DMS RabbitMQ)</h2>
+          <p class="section-sub">Managed RabbitMQ via Huawei Distributed Message Service. Digunakan sebagai Laravel queue driver.</p>
+
+          <h3>Opsi A — Buat DMS RabbitMQ baru</h3>
+          <div class="codeblock">
+            <div class="cb-header"><span class="cb-lang">yaml</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+            <pre><span class="yk">queue</span>:
+  <span class="yk">engine</span>: <span class="yv">rabbitmq</span>
+  <span class="yk">version</span>: <span class="yv">"3.8.35"</span>
+  <span class="yk">name</span>: <span class="yv">my-app-queue-prod</span>
+  <span class="yk">username</span>: <span class="yv">admin</span>
+  <span class="yk">password</span>: <span class="yv">"ProdRabbit@123!"</span>
+  <span class="yk">broker_num</span>: <span class="yn">3</span>             <span class="yc"># 1=single (dev) | 3/5/7=cluster (prod)</span>
+  <span class="yk">storage_size</span>: <span class="yn">300</span>         <span class="yc"># GB per broker (default: 100)</span>
+  <span class="yk">storage_type</span>: <span class="yv">high</span>        <span class="yc"># high (SATA) | ssd (NVMe)</span>
+  <span class="yk">az</span>: <span class="yv">ap-southeast-3a</span>
+  <span class="yc"># flavor: c6.2u8g.cluster  # opsional, auto-select jika kosong</span>
+  <span class="yk">port</span>: <span class="yn">5671</span>                 <span class="yc"># 5671=AMQPS/SSL (direkomendasikan) | 5672=AMQP</span>
+  <span class="yk">vhost</span>: <span class="yv">/</span>                   <span class="yc"># vhost selain "/" dibuat otomatis saat infra apply</span></pre>
+          </div>
+
+          <h3>Opsi B — Pakai RabbitMQ external/existing</h3>
+          <div class="codeblock">
+            <div class="cb-header"><span class="cb-lang">yaml</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+            <pre><span class="yk">queue</span>:
+  <span class="yk">host</span>: <span class="yv">10.10.1.19</span>          <span class="yc"># isi host → skip create DMS</span>
+  <span class="yk">port</span>: <span class="yn">5671</span>
+  <span class="yk">username</span>: <span class="yv">admin</span>
+  <span class="yk">password</span>: <span class="yv">"YourRabbitPass!"</span>
+  <span class="yk">vhost</span>: <span class="yv">/</span></pre>
+          </div>
+
+          <h3>Env vars yang di-inject otomatis</h3>
+          <div class="codeblock">
+            <div class="cb-header"><span class="cb-lang">env vars injected</span></div>
+            <pre>RABBITMQ_HOST=10.10.1.19
+RABBITMQ_PORT=5671
+RABBITMQ_USER=admin
+RABBITMQ_PASSWORD=xxx     <span class="c"># dari secrets CSMS</span>
+RABBITMQ_VHOST=/
+QUEUE_CONNECTION=rabbitmq</pre>
+          </div>
+
+          <div class="callout callout-info">
+            <span class="callout-icon">&#8505;&#65039;</span>
+            <div><strong>Port 5671 (AMQPS)</strong> adalah port SSL/TLS — direkomendasikan untuk production. Jika kamu set <code>vhost: /staging</code>, vapor-hw akan membuat vhost tersebut secara otomatis via DMS API saat <code>infra apply</code>.</div>
+          </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════ KAFKA -->
+        <section id="kafka" class="section">
+          <h2 class="section-title">Queue (DMS Kafka)</h2>
+          <p class="section-sub">Managed Apache Kafka via Huawei DMS for Kafka. Pilihan tepat untuk event streaming, high-throughput messaging, dan arsitektur event-driven. Gunakan <code>engine: kafka</code> sebagai alternatif RabbitMQ.</p>
+
+          <h3>Opsi A — Buat DMS Kafka baru</h3>
+          <div class="codeblock">
+            <div class="cb-header"><span class="cb-lang">yaml</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+            <pre><span class="yk">queue</span>:
+  <span class="yk">engine</span>: <span class="yv">kafka</span>
+  <span class="yk">version</span>: <span class="yv">"3.x"</span>
+  <span class="yk">name</span>: <span class="yv">my-app-kafka-prod</span>
+  <span class="yk">username</span>: <span class="yv">kafkaadmin</span>
+  <span class="yk">password</span>: <span class="yv">"ProdKafka@123!"</span>
+  <span class="yk">broker_num</span>: <span class="yn">3</span>                  <span class="yc"># 1=single | 3+ = cluster (prod)</span>
+  <span class="yk">storage_size</span>: <span class="yn">300</span>             <span class="yc"># GB total — min 300, dibulatkan ke kelipatan 100</span>
+  <span class="yk">storage_type</span>: <span class="yv">high</span>            <span class="yc"># high (SATA) | ssd (NVMe)</span>
+  <span class="yk">az</span>: <span class="yv">ap-southeast-3a</span>
+  <span class="yk">security_protocol</span>: <span class="yv">SASL_SSL</span>  <span class="yc"># PLAINTEXT | SASL_SSL | SASL_PLAINTEXT</span>
+  <span class="yk">sasl_mechanism</span>: <span class="yv">PLAIN</span>         <span class="yc"># PLAIN | SCRAM-SHA-512</span>
+  <span class="yk">port</span>: <span class="yn">9093</span>                     <span class="yc"># 9092=PLAINTEXT | 9093=SASL_SSL | 9095=SASL_PLAINTEXT</span>
+  <span class="yc"># vpc_client_plain: false       # true = aktifkan endpoint plaintext di dalam VPC</span>
+  <span class="yc"># flavor: kafka.2u8g.cluster.small  # opsional, auto-select jika kosong</span></pre>
+          </div>
+
+          <h3>Opsi B — Pakai Kafka external/existing</h3>
+          <div class="codeblock">
+            <div class="cb-header"><span class="cb-lang">yaml</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+            <pre><span class="yk">queue</span>:
+  <span class="yk">engine</span>: <span class="yv">kafka</span>
+  <span class="yk">host</span>: <span class="yv">10.10.1.20</span>              <span class="yc"># isi host → skip create DMS</span>
+  <span class="yk">port</span>: <span class="yn">9093</span>
+  <span class="yk">username</span>: <span class="yv">kafkaadmin</span>
+  <span class="yk">password</span>: <span class="yv">"YourKafkaPass!"</span>
+  <span class="yk">security_protocol</span>: <span class="yv">SASL_SSL</span>
+  <span class="yk">sasl_mechanism</span>: <span class="yv">PLAIN</span></pre>
+          </div>
+
+          <h3>Security protocol &amp; port</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>security_protocol</th><th>Port default</th><th>Kapan dipakai</th></tr></thead>
+              <tbody>
+                <tr><td>SASL_SSL</td><td>9093</td><td><strong>Direkomendasikan</strong> untuk production. Auth + enkripsi TLS end-to-end.</td></tr>
+                <tr><td>SASL_PLAINTEXT</td><td>9095</td><td>Auth SASL, koneksi tidak terenkripsi. Hanya untuk koneksi internal VPC yang terpercaya.</td></tr>
+                <tr><td>PLAINTEXT</td><td>9092</td><td>Tanpa auth, tanpa enkripsi. Hanya untuk dev/staging di dalam VPC yang terisolasi.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>sasl_mechanism</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>sasl_mechanism</th><th>Keterangan</th></tr></thead>
+              <tbody>
+                <tr><td>PLAIN</td><td>Default. Username/password plaintext (aman karena dilindungi TLS di SASL_SSL).</td></tr>
+                <tr><td>SCRAM-SHA-512</td><td>Lebih aman, credential di-hash. Diperlukan jika klien tidak mendukung PLAIN.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>Env vars yang di-inject otomatis</h3>
+          <div class="codeblock">
+            <div class="cb-header"><span class="cb-lang">env vars injected</span></div>
+            <pre>KAFKA_HOST=10.10.1.20
+KAFKA_PORT=9093
+KAFKA_BROKERS=10.10.1.20:9093     <span class="c"># host:port siap pakai untuk driver Laravel</span>
+KAFKA_USERNAME=kafkaadmin
+KAFKA_PASSWORD=xxx                <span class="c"># dari secrets CSMS</span>
+KAFKA_SECURITY_PROTOCOL=SASL_SSL
+KAFKA_SASL_MECHANISM=PLAIN</pre>
+          </div>
+
+          <div class="callout callout-warn">
+            <span class="callout-icon">&#9888;&#65039;</span>
+            <div>Berbeda dengan RabbitMQ, vapor-hw <strong>tidak otomatis set</strong> <code>QUEUE_CONNECTION</code> untuk Kafka. Tambahkan sendiri di bagian <code>env:</code> sesuai package Laravel Kafka yang kamu pakai (misalnya <code>QUEUE_CONNECTION: kafka</code> untuk package <code>mateusjunges/laravel-kafka</code>).</div>
+          </div>
+
+          <h3>Integrasi Laravel</h3>
+          <p>Gunakan package <code>mateusjunges/laravel-kafka</code> atau <code>ensi/laravel-kafka</code>. Konfigurasi di <code>config/kafka.php</code> bisa langsung membaca env vars yang di-inject vapor-hw:</p>
+          <div class="codeblock">
+            <div class="cb-header"><span class="cb-lang">php (config/kafka.php)</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+            <pre>'brokers'           => env('KAFKA_BROKERS', 'localhost:9092'),
+'security_protocol' => env('KAFKA_SECURITY_PROTOCOL', 'PLAINTEXT'),
+'sasl' => [
+    'mechanisms' => env('KAFKA_SASL_MECHANISM', 'PLAIN'),
+    'username'   => env('KAFKA_USERNAME', ''),
+    'password'   => env('KAFKA_PASSWORD', ''),
+],</pre>
+          </div>
+
+          <h3>Isolasi multi-environment dengan Kafka</h3>
+          <p>Kafka tidak memiliki konsep vhost seperti RabbitMQ. Isolasi staging dari production dilakukan di level <strong>topic prefix</strong> dan <strong>consumer group</strong> di kode aplikasi:</p>
+          <div class="codeblock">
+            <div class="cb-header"><span class="cb-lang">yaml (staging env)</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+            <pre><span class="yk">staging</span>:
+  <span class="yk">queue</span>:
+    <span class="yk">engine</span>: <span class="yv">kafka</span>
+    <span class="yk">name</span>: <span class="yv">my-app-kafka-prod</span>     <span class="yc"># instance SAMA dengan production</span>
+  <span class="yk">env</span>:
+    <span class="yk">KAFKA_TOPIC_PREFIX</span>: <span class="yv">"staging."</span>  <span class="yc"># baca di kode: env('KAFKA_TOPIC_PREFIX', '')</span>
+    <span class="yk">KAFKA_CONSUMER_GROUP</span>: <span class="yv">"staging-laravel"</span></pre>
+          </div>
+
+          <h3>Security group rules yang dibuat otomatis</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Port</th><th>Protocol</th><th>Keterangan</th></tr></thead>
+              <tbody>
+                <tr><td>9092</td><td>TCP</td><td>Kafka PLAINTEXT</td></tr>
+                <tr><td>9093</td><td>TCP</td><td>Kafka SASL+SSL (direkomendasikan)</td></tr>
+                <tr><td>9095</td><td>TCP</td><td>Kafka SASL_PLAINTEXT</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="callout callout-tip">
+            <span class="callout-icon">&#128161;</span>
+            <div>Semua tiga port Kafka (9092, 9093, 9095) dibuka otomatis oleh <code>infra apply</code> di security group untuk seluruh subnet CIDR. Tidak perlu konfigurasi tambahan.</div>
+          </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════ CDN -->
+        <section id="cdn" class="section">
+          <h2 class="section-title">CDN &amp; Assets</h2>
+          <p class="section-sub">Static asset acceleration via Huawei CDN + OBS. File <code>public/</code> otomatis diupload setiap deploy dengan hash prefix untuk cache-busting.</p>
+
+          <div class="codeblock">
+            <div class="cb-header"><span class="cb-lang">yaml</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+            <pre><span class="yk">cdn</span>:
+  <span class="yk">domain</span>: <span class="yv">assets.example.com</span>
+  <span class="yk">cert</span>: <span class="yv">./certs/assets.crt</span>  <span class="yc"># opsional, untuk HTTPS CDN domain</span>
+  <span class="yk">key</span>:  <span class="yv">./certs/assets.key</span></pre>
+          </div>
+
+          <h3>Setup CDN (sekali saja)</h3>
+          <div class="flow">
+            <div class="flow-step"><div class="flow-num">1</div><div class="flow-body"><div class="flow-title">Verifikasi kepemilikan domain</div><div class="flow-desc">Tambah TXT record di DNS provider. vapor-hw menampilkan instruksinya saat <code>infra apply</code> pertama kali.</div></div></div>
+            <div class="flow-step"><div class="flow-num">2</div><div class="flow-body"><div class="flow-title">infra apply</div><div class="flow-desc">CDN domain dibuat, OBS bucket dikonfigurasi dengan bucket policy untuk public read. Cache rules: static files 30 hari, html/php no-cache.</div></div></div>
+            <div class="flow-step"><div class="flow-num">3</div><div class="flow-body"><div class="flow-title">Tambah CNAME di DNS</div><div class="flow-desc">Arahkan domain CDN ke CNAME Huawei yang ditampilkan. Harus <strong>DNS only</strong> (tidak proxied jika pakai Cloudflare).</div></div></div>
+          </div>
+
+          <h3>Env var CDN yang di-inject</h3>
+          <div class="codeblock">
+            <div class="cb-header"><span class="cb-lang">env</span></div>
+            <pre>ASSET_URL=https://assets.example.com/my-app/assets/ab8fb6a1f743</pre>
+          </div>
+          <p>Laravel <code>asset()</code> dan <code>mix()</code> helper otomatis menggunakan <code>ASSET_URL</code> sebagai base URL.</p>
+
+          <div class="callout callout-warn">
+            <span class="callout-icon">&#9888;&#65039;</span>
+            <div>Jika memakai Cloudflare, pastikan CDN domain di-set <strong>DNS only</strong> (ikon abu-abu). Cloudflare proxy akan konflik dengan SSL certificate Huawei CDN.</div>
+          </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════ DEPLOY -->
+        <section id="deploy" class="section">
+          <h2 class="section-title">Deploying</h2>
+          <p class="section-sub">Deploy aplikasi Laravel ke FunctionGraph dengan satu command.</p>
+
+          <div class="codeblock">
+            <div class="cb-header"><span class="cb-lang">bash</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+            <pre><span class="cmd">vapor-hw deploy run production</span>
+<span class="cmd">vapor-hw deploy run staging</span>
+
+<span class="c"># Skip confirmation prompt untuk CI/CD</span>
+<span class="cmd">vapor-hw deploy run production --yes</span>
+
+<span class="c"># Auto-create OBS bucket jika belum ada</span>
+<span class="cmd">vapor-hw deploy run production --auto-create</span>
+
+<span class="c"># List semua versi yang sudah di-deploy</span>
+<span class="cmd">vapor-hw deploy list production</span></pre>
+          </div>
+
+          <h3>Deploy flow (9 langkah)</h3>
+          <div class="flow">
+            <div class="flow-step"><div class="flow-num">1</div><div class="flow-body"><div class="flow-title">Build hooks</div><div class="flow-desc">Jalankan <code>composer install</code>, <code>config:cache</code>, dll di mesin lokal.</div></div></div>
+            <div class="flow-step"><div class="flow-num">2</div><div class="flow-body"><div class="flow-title">Package artifact</div><div class="flow-desc">ZIP seluruh project Laravel (kecuali yang di-ignore), upload ke OBS <code>{id}/{env}/artifacts/</code>.</div></div></div>
+            <div class="flow-step"><div class="flow-num">3</div><div class="flow-body"><div class="flow-title">Upload static assets ke CDN</div><div class="flow-desc">File dari <code>public/</code> (kecuali .php) diupload ke OBS dengan hash prefix unik. CDN cache dipurge otomatis jika ada perubahan.</div></div></div>
+            <div class="flow-step"><div class="flow-num">4</div><div class="flow-body"><div class="flow-title">Update FunctionGraph</div><div class="flow-desc">FG function diupdate dengan artifact baru, memory/timeout/concurrency, VPC config, dan env vars (DB, Redis, RabbitMQ, ASSET_URL).</div></div></div>
+            <div class="flow-step"><div class="flow-num">5</div><div class="flow-body"><div class="flow-title">Inject secrets</div><div class="flow-desc">Secret dari CSMS di-fetch dan di-inject sebagai environment variables ke FunctionGraph.</div></div></div>
+            <div class="flow-step"><div class="flow-num">6</div><div class="flow-body"><div class="flow-title">Buat version baru</div><div class="flow-desc">FG version dibuat dengan format <code>v{YYYYMMDD}-{HHMMSS}</code>. Alias <code>live</code> diupdate ke version ini.</div></div></div>
+            <div class="flow-step"><div class="flow-num">7</div><div class="flow-body"><div class="flow-title">Health check</div><div class="flow-desc">HTTP GET ke <code>/api/ping</code> endpoint untuk verifikasi FunctionGraph bisa menerima request. Harus return HTTP 200.</div></div></div>
+            <div class="flow-step"><div class="flow-num">8</div><div class="flow-body"><div class="flow-title">APIG routing update</div><div class="flow-desc">Backend APIG diupdate ke version alias <code>live</code> yang baru. Custom domain dikonfirmasi aktif.</div></div></div>
+            <div class="flow-step"><div class="flow-num">9</div><div class="flow-body"><div class="flow-title">Deploy hooks</div><div class="flow-desc">Jalankan <code>php artisan migrate --force</code>, <code>vapor:health-check</code>, dll di FunctionGraph via invoke. Output ditampilkan di terminal.</div></div></div>
+          </div>
+
+          <h3>Flags</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Flag</th><th>Keterangan</th></tr></thead>
+              <tbody>
+                <tr><td>--yes</td><td>Skip semua prompt konfirmasi. Berguna untuk CI/CD pipeline.</td></tr>
+                <tr><td>--auto-create</td><td>Otomatis buat OBS bucket jika belum ada.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════ HOOKS -->
+        <section id="hooks" class="section">
+          <h2 class="section-title">Build &amp; Deploy Hooks</h2>
+          <p class="section-sub">Jalankan perintah custom sebelum packaging (build) dan setelah deploy selesai (deploy).</p>
+
+          <div class="codeblock">
+            <div class="cb-header"><span class="cb-lang">yaml</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+            <pre><span class="yk">build</span>:
+  <span class="yk">commands</span>:
+    - <span class="yv">composer install --no-dev --optimize-autoloader</span>
+    - <span class="yv">php artisan config:cache</span>
+    - <span class="yv">php artisan route:cache</span>
+    - <span class="yv">php artisan view:cache</span>
+    - <span class="yv">php artisan event:cache</span>
+
+<span class="yk">deploy</span>:
+  <span class="yk">commands</span>:
+    - <span class="yv">php artisan migrate --force</span>
+    - <span class="yv">php artisan vapor:health-check</span>   <span class="yc"># cek MySQL, Redis, RabbitMQ, OBS</span></pre>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Hook</th><th>Dijalankan di</th><th>Kapan</th><th>Contoh penggunaan</th></tr></thead>
+              <tbody>
+                <tr><td>build</td><td>Mesin lokal</td><td>Sebelum artifact ZIP dibuat</td><td>composer install, config:cache, npm run build</td></tr>
+                <tr><td>deploy</td><td>FunctionGraph (cloud)</td><td>Setelah version aktif &amp; health check passed</td><td>migrate, artisan commands, cache:clear</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>vapor:health-check</h3>
+          <p>vapor-hw menyertakan Artisan command <code>php artisan vapor:health-check</code> yang mengecek semua service sekaligus. Tambahkan di deploy hooks untuk memastikan deployment berjalan sempurna.</p>
+          <div class="codeblock">
+            <div class="cb-header"><span class="cb-lang">output contoh</span></div>
+            <pre>&#10003;  MySQL    : OK  — 10.20.1.65, 8.0.43, latency 14.8ms
+&#10003;  Redis    : OK  — 10.20.1.38:6379, 6.2.19, latency 26.8ms
+&#10003;  RabbitMQ : OK  — 10.20.1.19:5671, AMQPS (SSL socket), latency 63.5ms
+&#10003;  OBS      : OK  — vapor-test-e2e-storage, put/get/delete ok, latency 237.4ms
+Total: 4 passed, 0 failed</pre>
+          </div>
+
+          <div class="callout callout-info">
+            <span class="callout-icon">&#8505;&#65039;</span>
+            <div>Deploy hooks dieksekusi via FunctionGraph invoke dengan <code>VAPOR_HOOK_COMMAND</code> env var. Output stdout/stderr ditampilkan langsung di terminal kamu.</div>
+          </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════ ROLLBACK -->
+        <section id="rollback" class="section">
+          <h2 class="section-title">Rollbacks</h2>
+          <p class="section-sub">Kembalikan ke versi deployment sebelumnya dengan cepat. Rollback hanya mengubah alias <code>live</code> FunctionGraph — tidak perlu re-deploy artifact.</p>
+
+          <div class="codeblock">
+            <div class="cb-header"><span class="cb-lang">bash</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+            <pre><span class="c"># Lihat semua versi yang tersedia</span>
+<span class="cmd">vapor-hw deploy list production</span>
+<span class="c"># v20260308-143022  (current)
+# v20260307-091501
+# v20260305-183022</span>
+
+<span class="c"># Rollback ke versi tertentu</span>
+<span class="cmd">vapor-hw rollback to production v20260307-091501</span>
+
+<span class="c"># Rollback tanpa konfirmasi</span>
+<span class="cmd">vapor-hw rollback to production v20260305-183022 --yes</span></pre>
+          </div>
+
+          <div class="callout callout-warn">
+            <span class="callout-icon">&#9888;&#65039;</span>
+            <div>Rollback <strong>tidak</strong> me-rollback database migrations. Jika migration terbaru membuat perubahan breaking, jalankan <code>vapor-hw db migrate production --rollback --step=1</code> secara terpisah.</div>
+          </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════ DOMAIN -->
+        <section id="domain" class="section">
+          <h2 class="section-title">Custom Domain</h2>
+          <p class="section-sub">Bind custom domain ke APIG setelah deploy pertama selesai.</p>
+
+          <div class="flow">
+            <div class="flow-step"><div class="flow-num">1</div><div class="flow-body"><div class="flow-title">Deploy pertama kali</div><div class="flow-desc">Jalankan <code>vapor-hw deploy run production</code>. APIG sl_domain akan ditampilkan di output.</div></div></div>
+            <div class="flow-step"><div class="flow-num">2</div><div class="flow-body"><div class="flow-title">Tambah CNAME di DNS</div><div class="flow-desc">Buat record: <code>api.example.com CNAME → {sl_domain}.apig.huaweicloud.com</code></div></div></div>
+            <div class="flow-step"><div class="flow-num">3</div><div class="flow-body"><div class="flow-title">Bind domain</div><div class="flow-desc">Jalankan command di bawah. Idempoten — aman dijalankan berulang.</div></div></div>
+          </div>
+
+          <div class="codeblock">
+            <div class="cb-header"><span class="cb-lang">bash</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+            <pre><span class="c"># Bind custom domain ke APIG (jalankan sekali setelah deploy pertama)</span>
+<span class="cmd">vapor-hw domain production</span>
+<span class="cmd">vapor-hw domain staging</span></pre>
+          </div>
+
+          <div class="callout callout-info">
+            <span class="callout-icon">&#8505;&#65039;</span>
+            <div>Pastikan <code>domain</code> dan <code>certificate</code> sudah diisi di <code>vapor.yaml</code> sebelum menjalankan command ini. Certificate (cert + key) dibaca dari path file lokal yang ditentukan di config.</div>
+          </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════ SECRETS -->
+        <section id="secrets" class="section">
+          <h2 class="section-title">Secrets</h2>
+          <p class="section-sub">Kelola data sensitif via Huawei CSMS (Cloud Secret Manager Service). Secret di-inject otomatis sebagai environment variables saat deploy.</p>
+
+          <h3>Perintah dasar</h3>
+          <div class="codeblock">
+            <div class="cb-header"><span class="cb-lang">bash</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+            <pre><span class="c"># Set secret (akan prompt untuk input nilai)</span>
+<span class="cmd">vapor-hw secret set production APP_KEY</span>
+<span class="cmd">vapor-hw secret set staging APP_KEY</span>
+
+<span class="c"># Lihat semua secret yang terdaftar</span>
+<span class="cmd">vapor-hw secret list production</span>
+
+<span class="c"># Hapus secret</span>
+<span class="cmd">vapor-hw secret delete production APP_KEY</span></pre>
+          </div>
+
+          <h3>Daftarkan secret di vapor.yaml</h3>
+          <div class="codeblock">
+            <div class="cb-header"><span class="cb-lang">yaml</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+            <pre><span class="yk">secrets</span>:
+  - <span class="yv">APP_KEY</span>          <span class="yc"># Laravel application key</span>
+  - <span class="yv">DB_PASSWORD</span>      <span class="yc"># password RDS</span>
+  - <span class="yv">REDIS_PASSWORD</span>   <span class="yc"># password DCS Redis</span>
+  - <span class="yv">RABBITMQ_PASSWORD</span> <span class="yc"># password DMS RabbitMQ (jika engine: rabbitmq)</span>
+  - <span class="yv">KAFKA_PASSWORD</span>   <span class="yc"># password DMS Kafka (jika engine: kafka)</span>
+  - <span class="yv">OBS_KEY</span>          <span class="yc"># AK untuk OBS filesystem</span>
+  - <span class="yv">OBS_SECRET</span>       <span class="yc"># SK untuk OBS filesystem</span></pre>
+          </div>
+
+          <h3>Penamaan secret di CSMS</h3>
+          <p>Secret disimpan di CSMS dengan format nama: <code>vapor-{id}-{env}-{KEY}</code></p>
+          <div class="codeblock">
+            <div class="cb-header"><span class="cb-lang">contoh nama di CSMS</span></div>
+            <pre>vapor-my-laravel-app-production-APP_KEY
+vapor-my-laravel-app-production-DB_PASSWORD
+vapor-my-laravel-app-staging-APP_KEY</pre>
+          </div>
+
+          <div class="callout callout-tip">
+            <span class="callout-icon">&#128161;</span>
+            <div>Secret harus di-set <strong>sebelum</strong> menjalankan <code>vapor-hw deploy run</code>. Secret yang ada di daftar <code>secrets:</code> tapi belum di-set di CSMS akan menyebabkan deploy gagal.</div>
+          </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════ ARTISAN -->
+        <section id="artisan" class="section">
+          <h2 class="section-title">Artisan Commands</h2>
+          <p class="section-sub">Jalankan artisan command langsung di dalam FunctionGraph via invoke. Output ditampilkan di terminal lokal.</p>
+
+          <div class="codeblock">
+            <div class="cb-header"><span class="cb-lang">bash</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+            <pre><span class="c"># Format: vapor-hw artisan [environment] [artisan command]</span>
+<span class="cmd">vapor-hw artisan production cache:clear</span>
+<span class="cmd">vapor-hw artisan production config:clear</span>
+<span class="cmd">vapor-hw artisan production queue:restart</span>
+<span class="cmd">vapor-hw artisan staging migrate --force</span>
+<span class="cmd">vapor-hw artisan staging migrate:status</span>
+<span class="cmd">vapor-hw artisan production schedule:run</span>
+<span class="cmd">vapor-hw artisan production vapor:health-check</span></pre>
+          </div>
+
+          <div class="callout callout-info">
+            <span class="callout-icon">&#8505;&#65039;</span>
+            <div>Command dijalankan di environment yang aktif (alias <code>live</code>) dengan semua env vars dan secrets yang ter-inject. Cocok untuk debugging dan maintenance tanpa perlu SSH ke server.</div>
+          </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════ LOGS -->
+        <section id="logs" class="section">
+          <h2 class="section-title">Logs</h2>
+          <p class="section-sub">Stream dan filter log dari Huawei LTS (Log Tank Service). Pastikan LTS sudah diaktifkan untuk environment tersebut.</p>
+
+          <div class="codeblock">
+            <div class="cb-header"><span class="cb-lang">bash</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+            <pre><span class="c"># Tampilkan log terbaru</span>
+<span class="cmd">vapor-hw logs production</span>
+
+<span class="c"># Stream log real-time</span>
+<span class="cmd">vapor-hw logs production --tail</span>
+
+<span class="c"># Log dari 1 jam terakhir, filter ERROR, max 100 baris</span>
+<span class="cmd">vapor-hw logs production --since=1h --filter=ERROR --limit=100</span>
+
+<span class="c"># Log staging dari 30 menit terakhir</span>
+<span class="cmd">vapor-hw logs staging --since=30m</span>
+
+<span class="c"># Aktifkan LTS untuk environment (sekali saja)</span>
+<span class="cmd">vapor-hw lts enable production</span></pre>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Flag</th><th>Default</th><th>Keterangan</th></tr></thead>
+              <tbody>
+                <tr><td>--tail</td><td>false</td><td>Stream log real-time (polling). Ctrl+C untuk berhenti.</td></tr>
+                <tr><td>--since</td><td>10m</td><td>Rentang waktu. Format: <code>5m</code>, <code>1h</code>, <code>2h</code>, <code>24h</code></td></tr>
+                <tr><td>--limit</td><td>50</td><td>Jumlah maksimum baris log yang ditampilkan.</td></tr>
+                <tr><td>--filter</td><td>&mdash;</td><td>Filter substring dalam log. Case-insensitive.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════ ENV VARS -->
+        <section id="env-vars" class="section">
+          <h2 class="section-title">Environment Variables</h2>
+          <p class="section-sub">Kelola env vars di luar <code>vapor.yaml</code> menggunakan file <code>.env.{environment}</code> yang disimpan di OBS.</p>
+
+          <div class="codeblock">
+            <div class="cb-header"><span class="cb-lang">bash</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+            <pre><span class="c"># Tampilkan semua env vars aktif (dari FG + OBS + vapor.yaml)</span>
+<span class="cmd">vapor-hw env list production</span>
+
+<span class="c"># Download env vars ke .env.production di lokal</span>
+<span class="cmd">vapor-hw env pull production</span>
+
+<span class="c"># Edit langsung di editor default ($EDITOR)</span>
+<span class="cmd">vapor-hw env edit production</span>
+
+<span class="c"># Upload .env.production ke OBS dan inject ke FunctionGraph</span>
+<span class="cmd">vapor-hw env push production</span>
+
+<span class="c"># Hapus semua custom env vars dari OBS dan FunctionGraph</span>
+<span class="cmd">vapor-hw env delete production</span></pre>
+          </div>
+
+          <div class="callout callout-info">
+            <span class="callout-icon">&#8505;&#65039;</span>
+            <div>Env vars dari <code>vapor.yaml</code> (bagian <code>env:</code>) <strong>digabung</strong> dengan env vars yang di-push via <code>env push</code> saat deploy. Jika ada konflik, env vars dari <code>vapor.yaml</code> akan override.</div>
+          </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════ DATABASE OPS -->
+        <section id="database-ops" class="section">
+          <h2 class="section-title">Database Operations</h2>
+          <p class="section-sub">Jalankan operasi database via FunctionGraph invoke. Sama seperti Artisan, tapi dengan command yang lebih spesifik untuk database.</p>
+
+          <div class="codeblock">
+            <div class="cb-header"><span class="cb-lang">bash</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+            <pre><span class="c"># Jalankan migration</span>
+<span class="cmd">vapor-hw db migrate production</span>
+<span class="cmd">vapor-hw db migrate production --force</span>
+
+<span class="c"># Rollback migration</span>
+<span class="cmd">vapor-hw db migrate production --rollback</span>
+<span class="cmd">vapor-hw db migrate staging --rollback --step=2</span>
+
+<span class="c"># Drop semua tabel dan re-run migrations (STAGING ONLY!)</span>
+<span class="cmd">vapor-hw db fresh staging</span>
+<span class="cmd">vapor-hw db fresh staging --seed</span>
+
+<span class="c"># Jalankan database seeders</span>
+<span class="cmd">vapor-hw db seed staging</span>
+<span class="cmd">vapor-hw db seed staging --class=UserSeeder</span></pre>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Command</th><th>Flags</th><th>Keterangan</th></tr></thead>
+              <tbody>
+                <tr><td>db migrate</td><td>--force, --rollback, --step=N</td><td>Jalankan atau rollback migration. --force untuk bypass konfirmasi production.</td></tr>
+                <tr><td>db fresh</td><td>--seed</td><td>Drop semua tabel + re-run migrations. --seed untuk jalankan seeders setelahnya.</td></tr>
+                <tr><td>db seed</td><td>--class=ClassName</td><td>Jalankan seeders. Tanpa --class, jalankan DatabaseSeeder.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="callout callout-danger">
+            <span class="callout-icon">&#128680;</span>
+            <div><code>db fresh</code> akan <strong>menghapus semua tabel dan data</strong>. Jangan pernah digunakan di environment production. Hanya untuk staging atau development.</div>
+          </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════ DOCTOR -->
+        <section id="doctor" class="section">
+          <h2 class="section-title">Doctor</h2>
+          <p class="section-sub">Diagnosis otomatis konfigurasi lokal dan konektivitas semua service Huawei Cloud. Jalankan ini jika mengalami masalah deploy.</p>
+
+          <div class="codeblock">
+            <div class="cb-header"><span class="cb-lang">bash</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+            <pre><span class="cmd">vapor-hw doctor</span>
+
+<span class="c"># Cek APIG saja</span>
+<span class="cmd">vapor-hw doctor apig</span></pre>
+          </div>
+
+          <h3>Yang dicek doctor</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Section</th><th>Yang dicek</th></tr></thead>
+              <tbody>
+                <tr><td>System</td><td>OS, arsitektur CPU, Go version</td></tr>
+                <tr><td>Local Dependencies</td><td>PHP tersedia di PATH, Composer tersedia, zip tersedia</td></tr>
+                <tr><td>vapor.yaml</td><td>Schema valid, ID/Runtime/Region/xrole/Environments terkonfigurasi</td></tr>
+                <tr><td>IAM Credentials</td><td>AK/SK valid, project ID &amp; domain ID tersedia, akun aktif</td></tr>
+                <tr><td>OBS</td><td>Bucket ada dan accessible dengan credentials saat ini</td></tr>
+                <tr><td>FunctionGraph</td><td>Function <code>vapor-{id}-{env}</code> ada dan statusnya ACTIVE</td></tr>
+                <tr><td>RDS</td><td>Instance database per environment, status ACTIVE</td></tr>
+                <tr><td>DCS</td><td>Redis instance per environment, status RUNNING</td></tr>
+                <tr><td>DMS</td><td>RabbitMQ / Kafka instance per environment, status RUNNING</td></tr>
+                <tr><td>CDN</td><td>CDN domain ada, status ONLINE/OFFLINE</td></tr>
+                <tr><td>APIG</td><td>Instance ada, API group per environment ada</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════ DESTROY -->
+        <section id="destroy" class="section">
+          <h2 class="section-title">Destroy</h2>
+          <p class="section-sub">Hapus environment dan resource terkait. <strong>Tidak menghapus infrastruktur shared</strong> (VPC, RDS instance, DCS, DMS) &mdash; hanya menghapus FunctionGraph function dan APIG binding.</p>
+
+          <div class="codeblock">
+            <div class="cb-header"><span class="cb-lang">bash</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+            <pre><span class="c"># Preview apa yang akan dihapus (tanpa benar-benar menghapus)</span>
+<span class="cmd">vapor-hw destroy staging --dry-run</span>
+
+<span class="c"># Destroy dengan konfirmasi</span>
+<span class="cmd">vapor-hw destroy staging</span>
+
+<span class="c"># Destroy tanpa konfirmasi (untuk CI/CD)</span>
+<span class="cmd">vapor-hw destroy staging --yes</span>
+
+<span class="c"># Destroy + hapus secrets di CSMS</span>
+<span class="cmd">vapor-hw destroy staging --yes --purge-secrets</span>
+
+<span class="c"># Destroy + hapus artifacts di OBS</span>
+<span class="cmd">vapor-hw destroy staging --yes --purge-secrets --purge-artifacts</span></pre>
+          </div>
+
+          <h3>Yang dihapus saat destroy</h3>
+          <div class="flow">
+            <div class="flow-step"><div class="flow-num">1</div><div class="flow-body"><div class="flow-title">Detach APIG ingress route</div><div class="flow-desc">API group dan backend yang mengarah ke FunctionGraph di-lepas.</div></div></div>
+            <div class="flow-step"><div class="flow-num">2</div><div class="flow-body"><div class="flow-title">Delete FunctionGraph function</div><div class="flow-desc">Semua version dan alias function dihapus.</div></div></div>
+            <div class="flow-step"><div class="flow-num">3</div><div class="flow-body"><div class="flow-title">Cleanup CSMS secrets (opsional)</div><div class="flow-desc">Hapus semua secret <code>vapor-{id}-{env}-*</code> dari CSMS. Hanya jika --purge-secrets.</div></div></div>
+            <div class="flow-step"><div class="flow-num">4</div><div class="flow-body"><div class="flow-title">Hapus artifacts OBS (opsional)</div><div class="flow-desc">Hapus folder <code>{id}/{env}/</code> di OBS bucket. Hanya jika --purge-artifacts.</div></div></div>
+            <div class="flow-step"><div class="flow-num">5</div><div class="flow-body"><div class="flow-title">Archive state file</div><div class="flow-desc">State file di-rename ke <code>state.archived.json</code> sebagai catatan.</div></div></div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Flag</th><th>Keterangan</th></tr></thead>
+              <tbody>
+                <tr><td>--dry-run</td><td>Preview perubahan tanpa eksekusi.</td></tr>
+                <tr><td>--yes</td><td>Skip prompt konfirmasi.</td></tr>
+                <tr><td>--purge-secrets</td><td>Hapus juga secrets di CSMS untuk environment ini.</td></tr>
+                <tr><td>--purge-artifacts</td><td>Hapus juga artifact ZIP di OBS.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+
+        <!-- ═══════════════════════════════════════ DOCS SITE -->
+        <section id="docs-site" class="section">
+          <h2 class="section-title">Docs Site</h2>
+          <p class="section-sub">Deploy static documentation site ke OBS + CDN dengan satu command. File dari folder <code>docs/</code> diupload ke OBS prefix <code>_docs/</code> dan diakses via CDN subdomain.</p>
+
+          <h3>1. Konfigurasi vapor.yaml</h3>
+          <div class="codeblock">
+            <div class="cb-header"><span class="cb-lang">yaml</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+            <pre><span class="yc"># Top-level — di luar environments:</span>
+<span class="yk">docs</span>:
+  <span class="yk">domain</span>: <span class="yv">docs.example.com</span>       <span class="yc"># subdomain CDN untuk dokumentasi</span>
+  <span class="yk">dir</span>: <span class="yv">./docs</span>                    <span class="yc"># folder lokal (default: ./docs)</span>
+  <span class="yc"># cert: ./certs/docs.crt      # opsional, untuk HTTPS</span>
+  <span class="yc"># key:  ./certs/docs.key</span></pre>
+          </div>
+
+          <h3>2. Struktur folder docs</h3>
+          <div class="codeblock">
+            <div class="cb-header"><span class="cb-lang">bash</span></div>
+            <pre>my-laravel-project/
+├── vapor.yaml
+├── docs/              <span class="c">← semua file ini akan diupload</span>
+│   ├── index.html
+│   ├── style.css
+│   └── app.js
+└── app/
+    └── ...</pre>
+          </div>
+
+          <h3>3. Deploy</h3>
+          <div class="codeblock">
+            <div class="cb-header"><span class="cb-lang">bash</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+            <pre><span class="c"># Upload docs + pastikan CDN domain aktif</span>
+<span class="cmd">vapor-hw docs deploy</span>
+
+<span class="c"># Output contoh:</span>
+<span class="c">#   Deploying docs from './docs' → OBS 'my-bucket/_docs'</span>
+<span class="c">#   ✔ index.html</span>
+<span class="c">#   ✔ style.css</span>
+<span class="c">#   ✔ app.js</span>
+<span class="c">#   Uploaded 3 files</span>
+<span class="c">#   ✔ Bucket public read policy set</span>
+<span class="c">#   ✔ CDN docs domain 'docs.example.com' created</span>
+<span class="c">#   ✔ Docs live at: https://docs.example.com</span>
+<span class="c">#   ℹ CNAME required: docs.example.com → xxxxxx.c.cdn.huaweicloud.com</span></pre>
+          </div>
+
+          <h3>4. Tambah CNAME di DNS (sekali saja)</h3>
+          <div class="codeblock">
+            <div class="cb-header"><span class="cb-lang">dns record</span></div>
+            <pre>docs.example.com  CNAME  xxxxxx.c.cdn.huaweicloud.com</pre>
+          </div>
+
+          <h3>Cara kerja</h3>
+          <div class="flow">
+            <div class="flow-step"><div class="flow-num">1</div><div class="flow-body"><div class="flow-title">Upload ke OBS</div><div class="flow-desc">Semua file dari <code>docs/</code> diupload ke <code>{bucket}/_docs/</code> dengan Content-Type yang benar. Idempoten — aman dijalankan setiap update docs.</div></div></div>
+            <div class="flow-step"><div class="flow-num">2</div><div class="flow-body"><div class="flow-title">Set bucket policy</div><div class="flow-desc">OBS bucket dikonfigurasi untuk public read. Reuse bucket yang sama dengan artifact deploy &amp; CDN assets.</div></div></div>
+            <div class="flow-step"><div class="flow-num">3</div><div class="flow-body"><div class="flow-title">Ensure CDN domain</div><div class="flow-desc">CDN domain (<code>docs.domain</code>) dibuat dengan origin OBS. Jika domain belum terverifikasi, instruksi TXT record ditampilkan.</div></div></div>
+            <div class="flow-step"><div class="flow-num">4</div><div class="flow-body"><div class="flow-title">HTTPS (opsional)</div><div class="flow-desc">Jika <code>cert</code> dan <code>key</code> diisi, sertifikat SSL di-apply ke CDN domain secara otomatis.</div></div></div>
+          </div>
+
+          <div class="callout callout-tip">
+            <span class="callout-icon">&#128161;</span>
+            <div>Docs site menggunakan <strong>bucket yang sama</strong> dengan aplikasi — tidak perlu biaya OBS tambahan. File docs disimpan di prefix <code>_docs/</code> yang terpisah dari artifact dan assets Laravel.</div>
+          </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════ MULTI-ENV -->
+        <section id="multi-env" class="section">
+          <h2 class="section-title">Staging + Production</h2>
+          <p class="section-sub">Cara paling efisien: staging berbagi infrastruktur fisik (RDS instance, DCS instance, DMS instance) dengan production, namun tetap terisolasi secara logis.</p>
+
+          <h3>Pola yang direkomendasikan</h3>
+          <div class="codeblock">
+            <div class="cb-header"><span class="cb-lang">yaml (vapor.yaml)</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+            <pre><span class="yk">environments</span>:
+
+  <span class="yk">production</span>:
+    <span class="yk">database</span>:
+      <span class="yk">name</span>: <span class="yv">my-app-db</span>           <span class="yc"># instance name</span>
+      <span class="yk">db_name</span>: <span class="yv">laravel</span>          <span class="yc"># database name</span>
+      <span class="yk">username</span>: <span class="yv">laravel</span>
+    <span class="yk">cache</span>:
+      <span class="yk">name</span>: <span class="yv">my-app-cache</span>
+    <span class="yk">queue</span>:
+      <span class="yk">name</span>: <span class="yv">my-app-queue</span>
+      <span class="yk">vhost</span>: <span class="yv">/</span>
+
+  <span class="yk">staging</span>:
+    <span class="yk">database</span>:
+      <span class="yk">name</span>: <span class="yv">my-app-db</span>           <span class="yc"># SAMA → pakai instance yang sudah ada</span>
+      <span class="yk">db_name</span>: <span class="yv">laravel_staging</span>  <span class="yc"># BEDA → database terpisah</span>
+      <span class="yk">username</span>: <span class="yv">laravel_staging</span> <span class="yc"># BEDA → user tidak bisa akses DB prod</span>
+    <span class="yk">cache</span>:
+      <span class="yk">name</span>: <span class="yv">my-app-cache</span>        <span class="yc"># SAMA → pakai instance yang sudah ada</span>
+    <span class="yk">queue</span>:
+      <span class="yk">name</span>: <span class="yv">my-app-queue</span>        <span class="yc"># SAMA → pakai instance yang sudah ada</span>
+      <span class="yk">vhost</span>: <span class="yv">/staging</span>           <span class="yc"># BEDA → queue terisolasi dari production</span>
+    <span class="yk">env</span>:
+      <span class="yk">REDIS_PREFIX</span>: <span class="yv">"staging:"</span>  <span class="yc"># prefix semua Redis key staging</span>
+      <span class="yk">OBS_PREFIX</span>: <span class="yv">"staging/"</span>    <span class="yc"># subfolder OBS untuk staging files</span></pre>
+          </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════ ISOLATION -->
+        <section id="isolation" class="section">
+          <h2 class="section-title">Isolation Strategy</h2>
+          <p class="section-sub">Detail isolasi per layer untuk memastikan staging tidak mengganggu production.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Layer</th><th>Mekanisme isolasi</th><th>Cara kerja</th></tr></thead>
+              <tbody>
+                <tr><td>Database</td><td><code>db_name</code> berbeda + <code>username</code> berbeda</td><td><code>infra apply</code> otomatis create database <code>laravel_staging</code> dan user <code>laravel_staging</code> di instance yang sama. User staging tidak bisa akses database production.</td></tr>
+                <tr><td>Redis</td><td><code>REDIS_PREFIX: "staging:"</code></td><td>Bootstrap inject prefix ke semua Redis connection config (default, cache, session). Semua key staging diawali <code>staging:</code> sehingga tidak konflik dengan key production.</td></tr>
+                <tr><td>RabbitMQ</td><td><code>vhost: /staging</code></td><td><code>infra apply</code> otomatis create vhost <code>/staging</code> via DMS API. Queue staging sepenuhnya terpisah dari queue production.</td></tr>
+                <tr><td>Kafka</td><td>Topic prefix + consumer group</td><td>Tidak ada vhost di Kafka. Isolasi via konvensi naming topic (<code>KAFKA_TOPIC_PREFIX</code>) dan consumer group yang berbeda di kode aplikasi.</td></tr>
+                <tr><td>OBS Files</td><td><code>OBS_PREFIX: "staging/"</code></td><td>ObsAdapter membaca prefix dari config, semua file staging disimpan di subfolder <code>staging/</code> dalam bucket yang sama.</td></tr>
+                <tr><td>FunctionGraph</td><td>Nama function berbeda</td><td>Production: <code>vapor-{id}-production</code>, Staging: <code>vapor-{id}-staging</code>. Function sepenuhnya terpisah.</td></tr>
+                <tr><td>APIG</td><td>API group berbeda</td><td>Setiap environment punya APIG group sendiri dengan sl_domain unik.</td></tr>
+                <tr><td>Secrets</td><td>Namespace CSMS berbeda</td><td>Production: <code>vapor-{id}-production-*</code>, Staging: <code>vapor-{id}-staging-*</code>. Tidak ada sharing.</td></tr>
+                <tr><td>State</td><td>OBS path berbeda</td><td>Production: <code>{id}/production/state.json</code>, Staging: <code>{id}/staging/state.json</code>.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>Workflow deploy multi-environment pertama kali</h3>
+          <div class="codeblock">
+            <div class="cb-header"><span class="cb-lang">bash</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+            <pre><span class="c"># 1. Set secrets untuk production</span>
+<span class="cmd">vapor-hw secret set production APP_KEY "base64:xxx"</span>
+<span class="cmd">vapor-hw secret set production DB_PASSWORD "ProdPass!"</span>
+<span class="cmd">vapor-hw secret set production REDIS_PASSWORD "RedisPass!"</span>
+<span class="cmd">vapor-hw secret set production RABBITMQ_PASSWORD "RabbitPass!"</span>
+<span class="cmd">vapor-hw secret set production OBS_KEY "ak"</span>
+<span class="cmd">vapor-hw secret set production OBS_SECRET "sk"</span>
+
+<span class="c"># 2. Set secrets untuk staging (bisa pakai APP_KEY yang sama)</span>
+<span class="cmd">vapor-hw secret set staging APP_KEY "base64:xxx"</span>
+<span class="cmd">vapor-hw secret set staging DB_PASSWORD "StagingPass!"</span>
+<span class="cmd">vapor-hw secret set staging REDIS_PASSWORD "RedisPass!"</span>
+<span class="cmd">vapor-hw secret set staging RABBITMQ_PASSWORD "RabbitPass!"</span>
+<span class="cmd">vapor-hw secret set staging OBS_KEY "ak"</span>
+<span class="cmd">vapor-hw secret set staging OBS_SECRET "sk"</span>
+
+<span class="c"># 3. Provision semua infra (VPC, RDS, DCS, DMS, APIG, OBS, vhost)</span>
+<span class="cmd">vapor-hw infra apply</span>
+
+<span class="c"># 4. Deploy ke staging dulu</span>
+<span class="cmd">vapor-hw deploy run staging</span>
+
+<span class="c"># 5. Setelah staging OK, deploy production</span>
+<span class="cmd">vapor-hw deploy run production</span></pre>
+          </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════ INJECTED VARS -->
+        <section id="injected-vars" class="section">
+          <h2 class="section-title">Injected Env Vars Reference</h2>
+          <p class="section-sub">Semua env var yang otomatis di-inject ke FunctionGraph saat deploy. Kamu tidak perlu mendefinisikannya di <code>env:</code> vapor.yaml.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Env Var</th><th>Sumber</th><th>Keterangan</th></tr></thead>
+              <tbody>
+                <tr><td>VAPOR_ENV</td><td>CLI</td><td>Nama environment aktif (<code>production</code>, <code>staging</code>, dll)</td></tr>
+                <tr><td>APIG_STAGE</td><td>CLI</td><td>Selalu <code>RELEASE</code>. Dipakai bootstrap untuk strip stage prefix dari URL path.</td></tr>
+                <tr><td>DB_CONNECTION</td><td>vapor.yaml database</td><td><code>mysql</code> atau <code>pgsql</code></td></tr>
+                <tr><td>DB_HOST</td><td>state.json</td><td>IP/hostname RDS instance</td></tr>
+                <tr><td>DB_PORT</td><td>state.json</td><td>Port database (default 3306)</td></tr>
+                <tr><td>DB_DATABASE</td><td>vapor.yaml database.db_name</td><td>Nama database Laravel</td></tr>
+                <tr><td>DB_USERNAME</td><td>vapor.yaml database.username</td><td>User aplikasi database</td></tr>
+                <tr><td>DB_PASSWORD</td><td>CSMS secret</td><td>Password database (dari secrets)</td></tr>
+                <tr><td>REDIS_HOST</td><td>state.json</td><td>IP/hostname DCS Redis</td></tr>
+                <tr><td>REDIS_PORT</td><td>state.json</td><td>Port Redis (default 6379)</td></tr>
+                <tr><td>REDIS_PASSWORD</td><td>CSMS secret</td><td>Password Redis (dari secrets)</td></tr>
+                <tr><td>RABBITMQ_HOST</td><td>state.json</td><td>IP/hostname DMS RabbitMQ (hanya jika engine: rabbitmq)</td></tr>
+                <tr><td>RABBITMQ_PORT</td><td>vapor.yaml queue.port</td><td>Port RabbitMQ (5671 atau 5672)</td></tr>
+                <tr><td>RABBITMQ_USER</td><td>vapor.yaml queue.username</td><td>Username RabbitMQ</td></tr>
+                <tr><td>RABBITMQ_PASSWORD</td><td>CSMS secret</td><td>Password RabbitMQ (dari secrets)</td></tr>
+                <tr><td>RABBITMQ_VHOST</td><td>vapor.yaml queue.vhost</td><td>Vhost RabbitMQ (default: /)</td></tr>
+                <tr><td>QUEUE_CONNECTION</td><td>CLI</td><td>Selalu <code>rabbitmq</code> jika engine: rabbitmq</td></tr>
+                <tr><td>KAFKA_HOST</td><td>state.json</td><td>IP/hostname DMS Kafka (hanya jika engine: kafka)</td></tr>
+                <tr><td>KAFKA_PORT</td><td>state.json / queue.port</td><td>Port Kafka: 9092 / 9093 / 9095 sesuai security_protocol</td></tr>
+                <tr><td>KAFKA_BROKERS</td><td>CLI</td><td>Format <code>host:port</code> siap pakai untuk driver Laravel Kafka</td></tr>
+                <tr><td>KAFKA_USERNAME</td><td>vapor.yaml queue.username</td><td>Username Kafka (kosong jika PLAINTEXT)</td></tr>
+                <tr><td>KAFKA_PASSWORD</td><td>CSMS secret</td><td>Password Kafka (dari secrets)</td></tr>
+                <tr><td>KAFKA_SECURITY_PROTOCOL</td><td>vapor.yaml queue.security_protocol</td><td>SASL_SSL / SASL_PLAINTEXT / PLAINTEXT</td></tr>
+                <tr><td>KAFKA_SASL_MECHANISM</td><td>vapor.yaml queue.sasl_mechanism</td><td>PLAIN atau SCRAM-SHA-512</td></tr>
+                <tr><td>ASSET_URL</td><td>CDN state</td><td>Base URL CDN + asset hash prefix. Dipakai oleh <code>asset()</code> helper.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════ FLAVORS -->
+        <section id="flavors" class="section">
+          <h2 class="section-title">Flavor Reference</h2>
+          <p class="section-sub">Jika field <code>flavor</code> dikosongkan, CLI otomatis memilih flavor terkecil yang tersedia. Gunakan command berikut untuk melihat semua opsi.</p>
+
+          <div class="codeblock">
+            <div class="cb-header"><span class="cb-lang">bash</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
+            <pre><span class="c"># RDS MySQL flavors</span>
+<span class="cmd">vapor-hw infra rds:flavors --engine=mysql</span>
+
+<span class="c"># RDS PostgreSQL flavors</span>
+<span class="cmd">vapor-hw infra rds:flavors --engine=postgresql</span>
+
+<span class="c"># DCS Redis instances</span>
+<span class="cmd">vapor-hw infra dcs:list</span></pre>
+          </div>
+
+          <h3>RDS MySQL — Contoh flavor codes</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Flavor Code</th><th>vCPU</th><th>RAM</th><th>Rekomendasi</th></tr></thead>
+              <tbody>
+                <tr><td>rds.mysql.n1.medium.4</td><td>2</td><td>8 GB</td><td>Staging, dev</td></tr>
+                <tr><td>rds.mysql.n1.large.4</td><td>4</td><td>16 GB</td><td>Production kecil-menengah</td></tr>
+                <tr><td>rds.mysql.n1.xlarge.4</td><td>8</td><td>32 GB</td><td>Production besar</td></tr>
+                <tr><td>rds.mysql.n1.2xlarge.4</td><td>16</td><td>64 GB</td><td>High traffic</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>DCS Redis — Contoh flavor codes</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Flavor Code</th><th>Mode</th><th>Kapasitas</th><th>Rekomendasi</th></tr></thead>
+              <tbody>
+                <tr><td>redis.single.xu1.tiny.1</td><td>Single</td><td>1 GB</td><td>Dev / staging</td></tr>
+                <tr><td>redis.ha.xu1.tiny.r2.1</td><td>HA (Primary-Standby)</td><td>1 GB</td><td>Production kecil</td></tr>
+                <tr><td>redis.ha.xu1.large.r2.4</td><td>HA</td><td>4 GB</td><td>Production menengah</td></tr>
+                <tr><td>redis.ha.xu1.large.r2.8</td><td>HA</td><td>8 GB</td><td>Production besar</td></tr>
+                <tr><td>redis.ha.xu1.large.r2.16</td><td>HA</td><td>16 GB</td><td>High traffic</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>DMS RabbitMQ — Contoh flavor codes</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Flavor Code</th><th>vCPU per broker</th><th>RAM per broker</th><th>Rekomendasi</th></tr></thead>
+              <tbody>
+                <tr><td>c6.2u8g.single</td><td>2</td><td>8 GB</td><td>Dev / staging (broker_num: 1)</td></tr>
+                <tr><td>c6.2u8g.cluster</td><td>2</td><td>8 GB</td><td>Production (broker_num: 3)</td></tr>
+                <tr><td>c6.4u16g.cluster</td><td>4</td><td>16 GB</td><td>Production besar (broker_num: 3)</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>DMS Kafka — Contoh flavor codes</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Flavor Code</th><th>vCPU per broker</th><th>RAM per broker</th><th>Rekomendasi</th></tr></thead>
+              <tbody>
+                <tr><td>kafka.2u8g.cluster.small</td><td>2</td><td>8 GB</td><td>Dev / staging (broker_num: 1–3)</td></tr>
+                <tr><td>kafka.2u8g.cluster</td><td>2</td><td>8 GB</td><td>Production standard (broker_num: 3)</td></tr>
+                <tr><td>kafka.4u16g.cluster</td><td>4</td><td>16 GB</td><td>Production besar (broker_num: 3)</td></tr>
+                <tr><td>kafka.8u32g.cluster</td><td>8</td><td>32 GB</td><td>High throughput (broker_num: 3+)</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════ CLI REFERENCE -->
+        <section id="cli" class="section">
+          <h2 class="section-title">CLI Reference</h2>
+          <p class="section-sub">Seluruh command yang tersedia di vapor-hw.</p>
+
+          <h3>Account</h3>
+          <div class="cmd-grid">
+            <div class="cmd-card"><div class="cmd-name">vapor-hw login</div><div class="cmd-desc">Login dengan Huawei Cloud AK/SK. Disimpan aman di credential store lokal.</div></div>
+            <div class="cmd-card"><div class="cmd-name">vapor-hw logout</div><div class="cmd-desc">Hapus credentials yang tersimpan.</div></div>
+            <div class="cmd-card"><div class="cmd-name">vapor-hw whoami</div><div class="cmd-desc">Tampilkan akun, project, dan region yang sedang aktif.</div></div>
+            <div class="cmd-card"><div class="cmd-name">vapor-hw version</div><div class="cmd-desc">Tampilkan versi CLI.</div></div>
+          </div>
+
+          <h3>Project</h3>
+          <div class="cmd-grid">
+            <div class="cmd-card"><div class="cmd-name">vapor-hw init</div><div class="cmd-desc">Generate <code>vapor.yaml</code> dan <code>.vaporignore</code> template di direktori saat ini.</div></div>
+            <div class="cmd-card"><div class="cmd-name">vapor-hw validate</div><div class="cmd-desc">Validasi <code>vapor.yaml</code> tanpa deploy. Tampilkan error jika ada field yang salah.</div></div>
+          </div>
+
+          <h3>Infrastructure</h3>
+          <div class="cmd-grid">
+            <div class="cmd-card"><div class="cmd-name">vapor-hw infra apply</div><div class="cmd-desc">Provision atau update semua resource cloud (VPC, APIG, RDS, DCS, DMS, OBS, CDN). Idempoten.</div></div>
+            <div class="cmd-card"><div class="cmd-name">vapor-hw infra plan</div><div class="cmd-desc">Preview perubahan infrastruktur tanpa apply (dry run).</div></div>
+            <div class="cmd-card"><div class="cmd-name">vapor-hw infra diff [env]</div><div class="cmd-desc">Lihat perbedaan antara state lokal dan kondisi resource di cloud.</div></div>
+            <div class="cmd-card"><div class="cmd-name">vapor-hw infra status [env]</div><div class="cmd-desc">Tampilkan status resource per environment (IP, port, status).</div></div>
+            <div class="cmd-card"><div class="cmd-name">vapor-hw infra rds:flavors</div><div class="cmd-desc">Daftar flavor RDS yang tersedia di region saat ini. Flag: <code>--engine=mysql|postgresql</code></div></div>
+            <div class="cmd-card"><div class="cmd-name">vapor-hw infra dcs:list</div><div class="cmd-desc">Daftar DCS Redis instance yang ada di region saat ini.</div></div>
+            <div class="cmd-card"><div class="cmd-name">vapor-hw infra rds:flavors --engine=kafka</div><div class="cmd-desc">Belum tersedia sebagai subcommand tersendiri — gunakan <code>infra rds:flavors</code> hanya untuk RDS. Untuk Kafka flavor, cek Huawei Cloud console.</div></div>
+          </div>
+
+          <h3>Deploy</h3>
+          <div class="cmd-grid">
+            <div class="cmd-card"><div class="cmd-name">vapor-hw deploy run [env]</div><div class="cmd-desc">Build dan deploy ke environment. Flags: <code>--yes</code>, <code>--auto-create</code></div></div>
+            <div class="cmd-card"><div class="cmd-name">vapor-hw deploy list [env]</div><div class="cmd-desc">List semua version yang ter-deploy beserta timestamp.</div></div>
+            <div class="cmd-card"><div class="cmd-name">vapor-hw rollback to [env] [ver]</div><div class="cmd-desc">Rollback ke version spesifik. Flag: <code>--yes</code></div></div>
+            <div class="cmd-card"><div class="cmd-name">vapor-hw build package</div><div class="cmd-desc">Build dan package artifact ZIP tanpa upload/deploy.</div></div>
+            <div class="cmd-card"><div class="cmd-name">vapor-hw build clean</div><div class="cmd-desc">Hapus folder <code>.vapor/build</code> dan <code>.vapor/artifact.zip</code>.</div></div>
+            <div class="cmd-card"><div class="cmd-name">vapor-hw domain [env]</div><div class="cmd-desc">Bind custom domain dari <code>vapor.yaml</code> ke APIG. Jalankan sekali setelah deploy pertama.</div></div>
+          </div>
+
+          <h3>Database</h3>
+          <div class="cmd-grid">
+            <div class="cmd-card"><div class="cmd-name">vapor-hw db migrate [env]</div><div class="cmd-desc">Jalankan migration di FunctionGraph. Flags: <code>--force</code>, <code>--rollback</code>, <code>--step=N</code></div></div>
+            <div class="cmd-card"><div class="cmd-name">vapor-hw db fresh [env]</div><div class="cmd-desc">Drop semua tabel &amp; re-run migrations. Flag: <code>--seed</code>. <strong>STAGING ONLY!</strong></div></div>
+            <div class="cmd-card"><div class="cmd-name">vapor-hw db seed [env]</div><div class="cmd-desc">Jalankan database seeders. Flag: <code>--class=ClassName</code></div></div>
+          </div>
+
+          <h3>Operations</h3>
+          <div class="cmd-grid">
+            <div class="cmd-card"><div class="cmd-name">vapor-hw artisan [env] [cmd]</div><div class="cmd-desc">Jalankan artisan command di FunctionGraph. Output ditampilkan di terminal.</div></div>
+            <div class="cmd-card"><div class="cmd-name">vapor-hw logs [env]</div><div class="cmd-desc">Stream log dari LTS. Flags: <code>--tail</code>, <code>--since=Xm</code>, <code>--filter=text</code>, <code>--limit=N</code></div></div>
+            <div class="cmd-card"><div class="cmd-name">vapor-hw lts enable [env]</div><div class="cmd-desc">Aktifkan LTS logging untuk FunctionGraph environment ini.</div></div>
+            <div class="cmd-card"><div class="cmd-name">vapor-hw doctor</div><div class="cmd-desc">Diagnosis konfigurasi lokal dan semua service Huawei Cloud.</div></div>
+            <div class="cmd-card"><div class="cmd-name">vapor-hw status [env]</div><div class="cmd-desc">Tampilkan status runtime environment (function aktif, versi, URL).</div></div>
+            <div class="cmd-card"><div class="cmd-name">vapor-hw destroy [env]</div><div class="cmd-desc">Hapus environment. Flags: <code>--dry-run</code>, <code>--yes</code>, <code>--purge-secrets</code>, <code>--purge-artifacts</code></div></div>
+          </div>
+
+          <h3>Secrets &amp; Env</h3>
+          <div class="cmd-grid">
+            <div class="cmd-card"><div class="cmd-name">vapor-hw secret set [env] [key]</div><div class="cmd-desc">Set secret di CSMS. Akan prompt untuk input nilai.</div></div>
+            <div class="cmd-card"><div class="cmd-name">vapor-hw secret list [env]</div><div class="cmd-desc">Tampilkan daftar secret yang terdaftar (bukan nilainya).</div></div>
+            <div class="cmd-card"><div class="cmd-name">vapor-hw secret delete [env] [key]</div><div class="cmd-desc">Hapus secret dari CSMS.</div></div>
+            <div class="cmd-card"><div class="cmd-name">vapor-hw env list [env]</div><div class="cmd-desc">Tampilkan semua env var aktif di FunctionGraph.</div></div>
+            <div class="cmd-card"><div class="cmd-name">vapor-hw env pull [env]</div><div class="cmd-desc">Download env vars ke file <code>.env.{environment}</code> di lokal.</div></div>
+            <div class="cmd-card"><div class="cmd-name">vapor-hw env push [env]</div><div class="cmd-desc">Upload <code>.env.{environment}</code> ke OBS dan inject ke FunctionGraph.</div></div>
+            <div class="cmd-card"><div class="cmd-name">vapor-hw env edit [env]</div><div class="cmd-desc">Edit env vars di <code>$EDITOR</code>, simpan ke OBS, dan inject ke FunctionGraph.</div></div>
+            <div class="cmd-card"><div class="cmd-name">vapor-hw env delete [env]</div><div class="cmd-desc">Hapus semua custom env vars dari OBS dan FunctionGraph.</div></div>
+          </div>
+
+          <h3>Docs</h3>
+          <div class="cmd-grid">
+            <div class="cmd-card"><div class="cmd-name">vapor-hw docs deploy</div><div class="cmd-desc">Upload folder <code>docs/</code> ke OBS dan ensure CDN domain aktif. Idempoten.</div></div>
+          </div>
+
+          <h3>Function (Advanced)</h3>
+          <div class="cmd-grid">
+            <div class="cmd-card"><div class="cmd-name">vapor-hw function delete</div><div class="cmd-desc">Hapus FunctionGraph function tertentu berdasarkan nama.</div></div>
+          </div>
+        </section>
+
+      </div>
+
+      <footer class="footer">
+        <span>vapor-hw &middot; Laravel on Huawei Cloud &middot; ap-southeast-3</span>
+        <span>Built with Go &middot; MIT License</span>
+      </footer>
+
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

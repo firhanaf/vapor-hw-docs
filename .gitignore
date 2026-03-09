@@ -1,0 +1,33 @@
+# ── OS ────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# ── Editor ────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.orig
+
+# ── GitLab Pages build output ─────────────────
+# Folder "public/" dibuat otomatis oleh CI pipeline,
+# tidak perlu (dan tidak boleh) di-commit ke repo
+public/
+
+# ── Draft / backup ────────────────────────────
+*.bak
+*.draft.html
+draft-*/
+
+# ── Local preview tools ───────────────────────
+# Jika pakai "live-server", "serve", dsb
+node_modules/
+package-lock.json
+yarn.lock
