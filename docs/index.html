@@ -67,7 +67,6 @@
           <a class="nav-item" href="#database-ops">Database Ops</a>
           <a class="nav-item" href="#doctor">Doctor</a>
           <a class="nav-item" href="#destroy">Destroy</a>
-          <a class="nav-item" href="#docs-site">Docs Site</a>
         </div>
         <div class="nav-group">
           <span class="nav-label">Multi-Env</span>
@@ -1241,74 +1240,6 @@ vapor-my-laravel-app-staging-APP_KEY</pre>
           </div>
         </section>
 
-
-        <!-- ═══════════════════════════════════════ DOCS SITE -->
-        <section id="docs-site" class="section">
-          <h2 class="section-title">Docs Site</h2>
-          <p class="section-sub">Deploy static documentation site ke OBS + CDN dengan satu command. File dari folder <code>docs/</code> diupload ke OBS prefix <code>_docs/</code> dan diakses via CDN subdomain.</p>
-
-          <h3>1. Konfigurasi vapor.yaml</h3>
-          <div class="codeblock">
-            <div class="cb-header"><span class="cb-lang">yaml</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
-            <pre><span class="yc"># Top-level — di luar environments:</span>
-<span class="yk">docs</span>:
-  <span class="yk">domain</span>: <span class="yv">docs.example.com</span>       <span class="yc"># subdomain CDN untuk dokumentasi</span>
-  <span class="yk">dir</span>: <span class="yv">./docs</span>                    <span class="yc"># folder lokal (default: ./docs)</span>
-  <span class="yc"># cert: ./certs/docs.crt      # opsional, untuk HTTPS</span>
-  <span class="yc"># key:  ./certs/docs.key</span></pre>
-          </div>
-
-          <h3>2. Struktur folder docs</h3>
-          <div class="codeblock">
-            <div class="cb-header"><span class="cb-lang">bash</span></div>
-            <pre>my-laravel-project/
-├── vapor.yaml
-├── docs/              <span class="c">← semua file ini akan diupload</span>
-│   ├── index.html
-│   ├── style.css
-│   └── app.js
-└── app/
-    └── ...</pre>
-          </div>
-
-          <h3>3. Deploy</h3>
-          <div class="codeblock">
-            <div class="cb-header"><span class="cb-lang">bash</span><button class="cb-copy" onclick="copyCode(this)">copy</button></div>
-            <pre><span class="c"># Upload docs + pastikan CDN domain aktif</span>
-<span class="cmd">vapor-hw docs deploy</span>
-
-<span class="c"># Output contoh:</span>
-<span class="c">#   Deploying docs from './docs' → OBS 'my-bucket/_docs'</span>
-<span class="c">#   ✔ index.html</span>
-<span class="c">#   ✔ style.css</span>
-<span class="c">#   ✔ app.js</span>
-<span class="c">#   Uploaded 3 files</span>
-<span class="c">#   ✔ Bucket public read policy set</span>
-<span class="c">#   ✔ CDN docs domain 'docs.example.com' created</span>
-<span class="c">#   ✔ Docs live at: https://docs.example.com</span>
-<span class="c">#   ℹ CNAME required: docs.example.com → xxxxxx.c.cdn.huaweicloud.com</span></pre>
-          </div>
-
-          <h3>4. Tambah CNAME di DNS (sekali saja)</h3>
-          <div class="codeblock">
-            <div class="cb-header"><span class="cb-lang">dns record</span></div>
-            <pre>docs.example.com  CNAME  xxxxxx.c.cdn.huaweicloud.com</pre>
-          </div>
-
-          <h3>Cara kerja</h3>
-          <div class="flow">
-            <div class="flow-step"><div class="flow-num">1</div><div class="flow-body"><div class="flow-title">Upload ke OBS</div><div class="flow-desc">Semua file dari <code>docs/</code> diupload ke <code>{bucket}/_docs/</code> dengan Content-Type yang benar. Idempoten — aman dijalankan setiap update docs.</div></div></div>
-            <div class="flow-step"><div class="flow-num">2</div><div class="flow-body"><div class="flow-title">Set bucket policy</div><div class="flow-desc">OBS bucket dikonfigurasi untuk public read. Reuse bucket yang sama dengan artifact deploy &amp; CDN assets.</div></div></div>
-            <div class="flow-step"><div class="flow-num">3</div><div class="flow-body"><div class="flow-title">Ensure CDN domain</div><div class="flow-desc">CDN domain (<code>docs.domain</code>) dibuat dengan origin OBS. Jika domain belum terverifikasi, instruksi TXT record ditampilkan.</div></div></div>
-            <div class="flow-step"><div class="flow-num">4</div><div class="flow-body"><div class="flow-title">HTTPS (opsional)</div><div class="flow-desc">Jika <code>cert</code> dan <code>key</code> diisi, sertifikat SSL di-apply ke CDN domain secara otomatis.</div></div></div>
-          </div>
-
-          <div class="callout callout-tip">
-            <span class="callout-icon">&#128161;</span>
-            <div>Docs site menggunakan <strong>bucket yang sama</strong> dengan aplikasi — tidak perlu biaya OBS tambahan. File docs disimpan di prefix <code>_docs/</code> yang terpisah dari artifact dan assets Laravel.</div>
-          </div>
-        </section>
-
         <!-- ═══════════════════════════════════════ MULTI-ENV -->
         <section id="multi-env" class="section">
           <h2 class="section-title">Staging + Production</h2>
@@ -1575,10 +1506,6 @@ vapor-my-laravel-app-staging-APP_KEY</pre>
             <div class="cmd-card"><div class="cmd-name">vapor-hw env edit [env]</div><div class="cmd-desc">Edit env vars di <code>$EDITOR</code>, simpan ke OBS, dan inject ke FunctionGraph.</div></div>
             <div class="cmd-card"><div class="cmd-name">vapor-hw env delete [env]</div><div class="cmd-desc">Hapus semua custom env vars dari OBS dan FunctionGraph.</div></div>
           </div>
-
-          <h3>Docs</h3>
-          <div class="cmd-grid">
-            <div class="cmd-card"><div class="cmd-name">vapor-hw docs deploy</div><div class="cmd-desc">Upload folder <code>docs/</code> ke OBS dan ensure CDN domain aktif. Idempoten.</div></div>
           </div>
 
           <h3>Function (Advanced)</h3>
